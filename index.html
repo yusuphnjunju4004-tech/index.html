@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJUNJU ELECTRONICS - Ultimate Cloud POS & ERP v3</title>
+    <title>NJUNJU ELECTRONICS - Advanced Cloud POS & ERP v5</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: #f4f6f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
@@ -55,10 +55,11 @@
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2f5; }
         .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #1e3c72; }
         
-        /* Low Stock Alert Banner */
+        /* Banners */
         .alert-banner { background-color: #fff3cd; border-left: 6px solid #ffc107; color: #856404; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; display: none; }
+        .debt-alert-banner { background-color: #f8d7da; border-left: 6px solid #dc3545; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; display: none; }
 
-        /* Date Filter Area Styles */
+        /* Filters */
         .filter-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 6px; align-items: center; }
         .filter-row label { font-size: 12px; font-weight: bold; color: #555; }
         .filter-row input[type="date"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
@@ -95,6 +96,11 @@
         .sidebar-overlay { display: none; position: fixed; top: 62px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 80; }
         .sidebar-overlay.open { display: block; }
 
+        /* Danger Box Layout */
+        .danger-zone-box { background-color: #fff5f5; border: 2px dashed #e53e3e; padding: 20px; border-radius: 10px; margin-top: 30px; }
+
+        #receipt-print { display: none; }
+
         @media (min-width: 992px) {
             .menu-toggle-btn { display: none; }
             .sidebar { transform: translateX(0); position: static; min-height: calc(100vh - 62px); }
@@ -107,10 +113,27 @@
             .login-form-side { width: 100%; padding: 30px; }
             .brand-info-box { display: none; }
         }
+        
         @media print {
-            body * { display: none; }
-            #receipt-print, #receipt-print * { display: block; }
-            #receipt-print { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; font-family: monospace; }
+            body * { display: none !important; }
+            #receipt-print, #receipt-print * { display: block !important; }
+            #receipt-print {
+                display: block !important;
+                position: absolute; left: 0; top: 0;
+                width: 80mm; 
+                background: #fff;
+                color: #000;
+                padding: 10px;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            .receipt-header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 8px; }
+            .receipt-header h2 { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
+            .receipt-header p { font-size: 11px; margin: 2px 0; }
+            .receipt-body { border-bottom: 1px dashed #000; padding-bottom: 8px; margin-bottom: 8px; }
+            .receipt-row { display: flex; justify-content: space-between; margin: 3px 0; }
+            .receipt-footer { text-align: center; font-size: 10px; font-style: italic; margin-top: 10px; }
         }
     </style>
 </head>
@@ -132,7 +155,7 @@
             </div>
             <div class="login-form-side">
                 <h2>Ingia Kwenye Mfumo</h2>
-                <p class="welcome-msg">Weka akaunti yako ili kufungua POS & Daftari Kuu v3.</p>
+                <p class="welcome-msg">Weka akaunti yako ili kufungua POS & Daftari Kuu v5.</p>
                 <div class="form-group"><label>Username</label><input type="text" id="login-username" placeholder="Mfn: admin au staff"></div>
                 <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
                 <button class="btn btn-blue" style="margin-top: 5px; padding: 14px; border-radius: 8px;" onclick="handleLogin()">🔓 Fungua Mfumo Salama</button>
@@ -192,7 +215,6 @@
 
                 <!-- STOO TAB -->
                 <div id="stoo-tab" class="tab-content active">
-                    <!-- Feature 2: Low Stock Notifications Panel -->
                     <div class="alert-banner" id="low-stock-alert">⚠️ <strong>Taarifa ya Stoo:</strong> Bidhaa zifuatazo zinaisha ghalani hivi sasa!</div>
 
                     <div class="container">
@@ -268,7 +290,6 @@
                 <div id="mauzo-tab" class="tab-content">
                     <div class="card">
                         <h2>📜 Daftari Kuu la Mauzo Yote</h2>
-                        <!-- Feature 1: Date Range Filters -->
                         <div class="filter-row">
                             <label>📅 Kuanzia:</label><input type="date" id="sales-filter-from" onchange="filterSales()">
                             <label>Hadi:</label><input type="date" id="sales-filter-to" onchange="filterSales()">
@@ -284,7 +305,7 @@
                     </div>
                 </div>
 
-                <!-- Feature 5: REPAIR & SOFTWARE MANAGEMENT TAB -->
+                <!-- REPAIR & SOFTWARE MANAGEMENT TAB -->
                 <div id="ufundi-tab" class="tab-content">
                     <div class="container">
                         <div class="card">
@@ -334,7 +355,6 @@
                             <form id="expense-form">
                                 <div class="form-group"><label>Maelezo ya Matumizi</label><input type="text" id="e-desc" placeholder="Kodi, Bolt, Umeme" required></div>
                                 <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="e-amount" required></div>
-                                <!-- Feature 4: Cloud Receipt URL Capture -->
                                 <div class="form-group"><label>🔗 Link ya Picha ya Risiti (Ushahidi)</label><input type="text" id="e-img-url" placeholder="Weka link ya picha hapa (Optional)"></div>
                                 <button type="button" class="btn btn-danger" style="width:100%; padding:12px;" onclick="addExpense()">💸 Hifadhi Matumizi</button>
                             </form>
@@ -354,6 +374,8 @@
 
                 <!-- MADENI TAB -->
                 <div id="madeni-tab" class="tab-content">
+                    <div class="debt-alert-banner" id="debt-due-alert"></div>
+
                     <div class="card" style="margin-bottom:20px;">
                         <h2>➕ Sajili Deni la Msambazaji (Supplier Debt)</h2>
                         <form id="debt-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end;">
@@ -364,7 +386,7 @@
                         </form>
                     </div>
                     <div class="card">
-                        <h2>🤝 Daftari la Madeni Yote</h2>
+                        <h2>🤝 Daftari la Madeni Yote (Wateja & Suppliers)</h2>
                         <div class="table-responsive">
                             <table>
                                 <thead><tr><th>Aina</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Ahadi Kulipa</th><th>Tarehe</th><th>Kazi</th></tr></thead>
@@ -390,7 +412,6 @@
                                 <div style="background:#e8f5e9; padding:15px; border-radius:6px; text-align:center;"><h4>Faida Halisi</h4><p id="rep-net" style="font-size:18px; font-weight:bold; color:#1b5e20;">0/=</p></div>
                             </div>
                             
-                            <!-- Feature 3: Analytics top selling elements layout -->
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                                 <div class="card" style="background:#f1f3f5; border:none;"><h3>🔥 Bidhaa Inayong'ara (Top Product)</h3><p id="analytics-top-product" style="font-size:16px; font-weight:bold; margin-top:8px; color:#6f42c1;">Bado Kuchambua...</p></div>
                                 <div class="card" style="background:#f1f3f5; border:none;"><h3>🏢 Tawi Linaloongoza kwa Faida</h3><p id="analytics-top-branch" style="font-size:16px; font-weight:bold; margin-top:8px; color:#fd7e14;">Bado Kuchambua...</p></div>
@@ -407,26 +428,57 @@
                         <div class="form-group"><label>Password Mpya ya STAFF</label><input type="password" id="new-staff-pass"></div>
                         <button class="btn btn-blue" onclick="changeSystemPasswords()">💾 Hifadhi Passwords Mpya</button>
                     </div>
+
+                    <!-- ADMIN HARD RESET INTERACTIVE BUTTON (ADDED FEATURE) -->
+                    <div class="danger-zone-box">
+                        <h3 style="color:#c53030; font-size:16px; margin-bottom:10px;">⚠️ Eneo la Hatari (Danger Zone)</h3>
+                        <p style="font-size:13px; color:#4a5568; margin-bottom:15px;">Kitufe hiki kitafuta kabisa bidhaa zote ghalani, rekodi zote za mauzo, ufundi, matumizi, na madeni kwenye Cloud Database ya Firebase. <strong>Kitendo hiki hakirudi nyuma!</strong></p>
+                        <button class="btn btn-danger" style="padding:12px 20px; font-weight:bold;" onclick="triggerSystemHardReset()">🔥 Futa Mfumo Mzima (Reset All Data)</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- RETAIL PRINT WINDOW -->
+    <!-- MOBILE-FRIENDLY CLEAN THERMAL RECEIPT LAYOUT -->
     <div id="receipt-print">
-        <div style="text-align:center; border-bottom:2px dashed #000; padding-bottom:10px;"><h2>NJUNJU ELECTRONICS</h2><p>Matawi ya Kariakoo & Mbagala</p><h3>STAKABADHI (RECEIPT)</h3></div>
-        <div style="padding:15px 0; border-bottom:2px dashed #000; font-size:14px;">
-            <p><strong>Mteja:</strong> <span id="rec-cust"></span></p><p><strong>Bidhaa:</strong> <span id="rec-name"></span></p>
-            <p><strong>IMEI:</strong> <span id="rec-imei"></span></p><p><strong>Idadi:</strong> <span id="rec-qty"></span> Pcs</p>
-            <p><strong>Dhamana:</strong> <span id="rec-warranty"></span></p><p><strong>Aina ya Malipo:</strong> <span id="rec-type"></span></p>
+        <div class="receipt-header">
+            <h2>NJUNJU ELECTRONICS</h2>
+            <p>Matawi: Kariakoo & Mbagala</p>
+            <p>📍 Location: Uhuru Street, Kariakoo</p>
+            <p>📞 Simu: 0712 XXXXXX / 0784 XXXXXX</p>
+            <p style="margin-top:5px; font-size:10px;">--------------------------------</p>
+            <p><strong>STAKABADHI YA MALIPO (RECEIPT)</strong></p>
+            <p style="font-size:10px;">--------------------------------</p>
         </div>
-        <div style="text-align:right; padding-top:10px;"><h3>JUMLA KUU: <span id="rec-total"></span>/=</h3></div>
+        <div class="receipt-header">
+            <div class="receipt-row"><span>Tarehe:</span><span id="rec-date-v4"></span></div>
+            <div class="receipt-row"><span>Mteja:</span><span id="rec-cust" style="font-weight:bold;"></span></div>
+            <div class="receipt-row"><span>Simu:</span><span id="rec-cphone"></span></div>
+            <p style="font-size:10px; margin:4px 0;">- - - - - - - - - - - - - - - -</p>
+            <div class="receipt-row"><span style="font-weight:bold;">Bidhaa (Item):</span></div>
+            <div style="padding-left:10px; font-weight:bold;" id="rec-name"></div>
+            <div class="receipt-row"><span>IMEI/Serial:</span><span id="rec-imei"></span></div>
+            <div class="receipt-row"><span>Idadi (Qty):</span><span><span id="rec-qty"></span> Pcs</span></div>
+            <div class="receipt-row"><span>Dhamana:</span><span id="rec-warranty" style="font-weight:bold;"></span></div>
+            <div class="receipt-row"><span>Aina ya Malipo:</span><span id="rec-type"></span></div>
+        </div>
+        <div class="receipt-row" style="font-size:14px; font-weight:bold; border-top:1px dashed #000; padding-top:6px;">
+            <span>JUMLA KUU:</span><span><span id="rec-total"></span>/=</span>
+        </div>
+        <div class="receipt-footer">
+            <p style="margin-top:10px;">--------------------------------</p>
+            <p>⚠️ MASHARTI YA DHAMANA (WARRANTY):</p>
+            <p>1. Warranty inahusisha matatizo ya kiwanda tu (Software/Motherboard).</p>
+            <p>2. Kioo kupasuka (Display), simu kuingia maji, au kufunguliwa nje ya kituo chetu hufuta warranty.</p>
+            <p style="margin-top:8px; font-weight:bold;">Asante kwa kufanya biashara nasi!<br>✨ "We Lift Your Smartlife" ✨</p>
+        </div>
     </div>
 
-    <!-- CODE SCRIPT CORE ENGINE v3 -->
+    <!-- CODE SCRIPT CORE ENGINE v5 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyClPvYa8QQCB_X7HV5K-5Laf15ElM76BP8",
@@ -553,7 +605,6 @@
 
         window.deleteProduct = async function(id) { if(confirm("Futa bidhaa hii?")) await deleteDoc(doc(db, "products", id)); }
 
-        // Feature 5: Repair actions logic engine
         window.addRepairJob = async function() {
             const customer_name = document.getElementById('r-cust').value;
             const customer_phone = document.getElementById('r-phone').value;
@@ -568,9 +619,7 @@
             alert("🛠️ Kazi ya ufundi imesajiliwa Cloud!");
         }
 
-        window.updateRepairStatus = async function(id, newStatus) {
-            await updateDoc(doc(db, "repairs", id), { status: newStatus });
-        }
+        window.updateRepairStatus = async function(id, newStatus) { await updateDoc(doc(db, "repairs", id), { status: newStatus }); }
 
         window.addExpense = async function() {
             const description = document.getElementById('e-desc').value;
@@ -603,11 +652,39 @@
             await deleteDoc(doc(db, "sales", saleId));
         }
 
-        // Main Synchronizer Monitor Database Engine
+        /* ---------------- ADVANCED HARD RESET ENGINE (NEW CLOUD METHOD) ---------------- */
+        window.triggerSystemHardReset = async function() {
+            if (!isAdmin) { alert("Huruhusiwi kufanya kitendo hiki!"); return; }
+            
+            let firstCheck = confirm("🚨 ONYO KALI: Je, una uhakika unataka KUFUTA data zote ghalani, mauzo, ufundi, matumizi na madeni milele?");
+            if (!firstCheck) return;
+            
+            let secondCheck = prompt("Ili kuthibitisha, andika neno 'RESET' kwa herufi kubwa hapa chini:");
+            if (secondCheck !== "RESET") { alert("Uthibitisho umefeli! Data hazikufutwa."); return; }
+
+            try {
+                const collectionsToClean = ["products", "sales", "repairs", "expenses", "debts", "returns"];
+                
+                alert("🔄 Tafadhali subiri... Mfumo unafuta data kutoka Firebase Cloud hivi sasa.");
+                
+                for (let colName of collectionsToClean) {
+                    const querySnapshot = await getDocs(collection(db, colName));
+                    querySnapshot.forEach(async (docSnap) => {
+                        await deleteDoc(doc(db, colName, docSnap.id));
+                    });
+                }
+                
+                alert("✨ SAFI KABISA! Mfumo mzima wa NJUNJU ELECTRONICS ume-resetiwa kiwanda na uko tupu sasa hivi.");
+                window.location.reload();
+            } catch (error) {
+                console.error(error);
+                alert("Kuna hitilafu imetokea wakati wa kufuta data: " + error.message);
+            }
+        }
+
         window.loadAllDataRealtime = function() {
             const activeBranch = document.getElementById('global-branch-select').value;
             
-            // Realtime Stock Monitor + Feature 2 Alert engine logic
             onSnapshot(collection(db, "products"), (snapshot) => {
                 const tableBody = document.getElementById('products-table'); tableBody.innerHTML = '';
                 allProductsCached = {}; let lowStockNames = [];
@@ -623,7 +700,6 @@
                 applyAdminVisibility();
             });
 
-            // Realtime Repairs Monitor
             onSnapshot(query(collection(db, "repairs"), orderBy("created_at", "desc")), (snapshot) => {
                 const repBody = document.getElementById('repairs-table'); repBody.innerHTML = '';
                 snapshot.forEach((docSnap) => {
@@ -635,29 +711,46 @@
                 });
             });
 
-            // Realtime Sales and Financial Core engine listener
             onSnapshot(query(collection(db, "sales"), orderBy("sale_date", "desc")), (snapshot) => {
                 allSalesCached = []; snapshot.forEach(d => { let data = d.data(); data.id = d.id; allSalesCached.push(data); });
                 filterSales();
             });
 
-            // Realtime Expenses
             onSnapshot(collection(db, "expenses"), (snapshot) => {
                 allExpensesCached = []; snapshot.forEach(d => allExpensesCached.push(d.data()));
                 filterExpenses();
             });
 
-            // Realtime Debts
             onSnapshot(collection(db, "debts"), (snapshot) => {
                 const debtsBody = document.getElementById('debts-table'); debtsBody.innerHTML = '';
+                let overdueNames = []; let dueTomorrowNames = [];
+                let leo = new Date(); leo.setHours(0,0,0,0);
+                let kesho = new Date(leo); kesho.setDate(kesho.getDate() + 1);
+
                 snapshot.forEach((docSnap) => {
                     const d = docSnap.data(); d.id = docSnap.id;
                     let actionBtn = d.status === 'Haijalipwa' ? `<button class="btn" style="background:#007bff; padding:4px;" onclick="payDebt('${d.id}')">💵 Lipwa</button>` : '✓ Sawa';
-                    debtsBody.innerHTML += `<tr><td>${d.type}</td><td><strong>${d.name}</strong></td><td>${d.phone || '-'}</td><td><strong>${d.amount.toLocaleString()}</strong></td><td>${d.status}</td><td>${d.due_date?new Date(d.due_date).toLocaleDateString('sw-TZ'):'-'}</td><td>${d.created_at?new Date(d.created_at.seconds*1000).toLocaleDateString('sw-TZ'):'-'}</td><td>${actionBtn}</td></tr>`;
+                    
+                    if(d.status === "Haijalipwa" && d.due_date) {
+                        let tareheAhadi = new Date(d.due_date); tareheAhadi.setHours(0,0,0,0);
+                        if(tareheAhadi < leo) {
+                            overdueNames.push(`${d.name} (${d.amount.toLocaleString()}/=)`);
+                        } else if (tareheAhadi.getTime() === kesho.getTime()) {
+                            dueTomorrowNames.push(`${d.name}`);
+                        }
+                    }
+
+                    debtsBody.innerHTML += `<tr><td><span style='color:${d.type==='Kudai'?'green':'red'}'>${d.type}</span></td><td><strong>${d.name}</strong></td><td>${d.phone || '-'}</td><td><strong>${d.amount.toLocaleString()}</strong></td><td><span class='badge' style='${d.status==='Imelipwa'?'background:#d4edda;color:green;':'background:#f8d7da;color:red;'}'>${d.status}</span></td><td>${d.due_date?new Date(d.due_date).toLocaleDateString('sw-TZ'):'-'}</td><td>${d.created_at?new Date(d.created_at.seconds*1000).toLocaleDateString('sw-TZ'):'-'}</td><td>${actionBtn}</td></tr>`;
                 });
+
+                const debtBanner = document.getElementById('debt-due-alert');
+                let msg = "";
+                if(overdueNames.length > 0) msg += `🚨 <strong>MADENI YALIYOPITISHA MUDA (OVERDUE):</strong> Wateja/Suppliers wafuatazo wamevuka tarehe ya ahadi: ${overdueNames.join(', ')}. Chukua hatua ya kuwapigia!<br>`;
+                if(dueTomorrowNames.length > 0) msg += `📅 <strong>KUKUMBUSHA KESHO:</strong> Wafuatazo tarehe yao ya kulipa ni kesho: ${dueTomorrowNames.join(', ')}.`;
+                
+                if(msg !== "") { debtBanner.innerHTML = msg; debtBanner.style.display = 'block'; } else { debtBanner.style.display = 'none'; }
             });
 
-            // Realtime Returns
             onSnapshot(query(collection(db, "returns"), orderBy("return_date", "desc")), (snapshot) => {
                 const returnsBody = document.getElementById('returns-history-table'); returnsBody.innerHTML = '';
                 snapshot.forEach((docSnap) => {
@@ -667,7 +760,6 @@
             });
         }
 
-        // Feature 1: Date and search combined filters for sales
         window.filterSales = function() {
             const activeBranch = document.getElementById('global-branch-select').value;
             const searchInput = document.getElementById('sales-search').value.toLowerCase();
@@ -736,7 +828,6 @@
             applyAdminVisibility();
         }
 
-        // Feature 3: Advanced Intelligent Analytics Engine for top selling products/branches
         window.generateMonthlyReport = function() {
             const targetMonth = Number(document.getElementById('report-month').value);
             const targetYear = Number(document.getElementById('report-year').value);
@@ -751,8 +842,6 @@
                 if(d.getMonth() === targetMonth && d.getFullYear() === targetYear) {
                     if (activeBranch !== "Matawi Yote" && s.branch !== activeBranch) return;
                     m_sales += s.total_price; m_profit += s.profit;
-
-                    // Counter logic for analytics
                     productCounts[s.name] = (productCounts[s.name] || 0) + s.quantity;
                     branchProfits[s.branch] = (branchProfits[s.branch] || 0) + s.profit;
                 }
@@ -763,7 +852,6 @@
                 if(d.getMonth() === targetMonth && d.getFullYear() === targetYear) m_expenses += e.amount;
             });
 
-            // Find top items
             let topProd = "Hakuna data mwezi huu"; let maxP = 0;
             for(let key in productCounts) { if(productCounts[key] > maxP) { maxP = productCounts[key]; topProd = `${key} (${maxP} Pcs)`; } }
             
@@ -794,7 +882,7 @@
         window.completeSale = async function() {
             if(!selectedProduct) return;
             const qty = Number(document.getElementById('sale-qty').value) || 1;
-            const customer_name = document.getElementById('c-name').value || 'Walk-in';
+            const customer_name = document.getElementById('c-name').value || 'Walk-in Customer';
             const customer_phone = document.getElementById('c-phone').value || '-';
             const warranty = document.getElementById('c-warranty').value;
             const is_debt = document.getElementById('c-pay-type').value === 'debt';
@@ -811,12 +899,18 @@
 
             if(is_debt) await addDoc(collection(db, "debts"), { type: "Kudai", name: customer_name, phone: customer_phone, amount: total_price, status: "Haijalipwa", due_date, created_at: new Date() });
 
-            document.getElementById('rec-cust').innerText = customer_name; document.getElementById('rec-name').innerText = selectedProduct.name;
-            document.getElementById('rec-imei').innerText = selectedProduct.imei || 'N/A'; document.getElementById('rec-qty').innerText = qty;
-            document.getElementById('rec-warranty').innerText = warranty; document.getElementById('rec-type').innerText = is_debt ? 'MKOPO' : 'CASH';
+            document.getElementById('rec-date-v4').innerText = new Date().toLocaleString('sw-TZ');
+            document.getElementById('rec-cust').innerText = customer_name;
+            document.getElementById('rec-cphone').innerText = customer_phone;
+            document.getElementById('rec-name').innerText = selectedProduct.name;
+            document.getElementById('rec-imei').innerText = selectedProduct.imei || 'N/A';
+            document.getElementById('rec-qty').innerText = qty;
+            document.getElementById('rec-warranty').innerText = warranty;
+            document.getElementById('rec-type').innerText = is_debt ? 'MKOPO / DENI' : 'CASH / FULL';
             document.getElementById('rec-total').innerText = total_price.toLocaleString();
 
             window.print();
+            
             document.getElementById('cart-details-area').style.display = 'none';
             document.getElementById('cart-section').innerHTML = '<p style="text-align: center; color: #999; padding: 20px 0;">Bonyeza "Uza" kwenye stoo.</p>';
         }
