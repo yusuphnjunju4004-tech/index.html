@@ -6,13 +6,12 @@
     <title>NJUNJU ELECTRONICS - Ultimate Cloud POS & ERP</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f4f6f9; color: #333; padding: 20px; }
+        body { background-color: #f4f6f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
         
         /* ---------------- MODERN & PROFESSIONAL LOGIN SCREEN ---------------- */
-        #login-screen { display: flex; justify-content: center; align-items: center; min-height: 95vh; padding: 10px; }
+        #login-screen { display: flex; justify-content: center; align-items: center; min-height: 95vh; padding: 10px; width: 100%; }
         .login-container { display: flex; background: white; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); width: 100%; max-width: 950px; overflow: hidden; min-height: 550px; }
         
-        /* Upande wa kushoto: Brand Showcase */
         .login-brand-side { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 45px; width: 45%; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .login-brand-side::before { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, rgba(255,255,255,0.05) 10%, transparent 10%); background-size: 20px 20px; opacity: 0.3; }
         .brand-header h1 { font-size: 26px; letter-spacing: 1px; color: #ffc107; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -27,72 +26,106 @@
         .motivation-box h5 { font-size: 11px; text-transform: uppercase; color: #b0bec5; margin-bottom: 4px; }
         .motivation-box p { font-size: 13px; font-style: italic; color: #fff; line-height: 1.4; }
 
-        /* Upande wa kulia: Form yenyewe */
         .login-form-side { padding: 50px; width: 55%; display: flex; flex-direction: column; justify-content: center; background: #fff; }
         .login-form-side h2 { font-size: 24px; color: #1e3c72; margin-bottom: 8px; font-weight: 700; }
         .login-form-side .welcome-msg { font-size: 14px; color: #666; margin-bottom: 30px; }
         
-        /* Responsive login text/boxes */
-        @media (max-width: 768px) {
-            .login-container { flex-direction: column; max-width: 450px; }
-            .login-brand-side { width: 100%; padding: 30px; min-height: auto; }
-            .login-form-side { width: 100%; padding: 30px; }
-            .brand-info-box { display: none; }
-        }
-
-        /* ---------------- MFUMO MKUU (Utaonekana baada ya login) ---------------- */
-        #main-system { display: none; }
+        /* ---------------- APP STRUCTURE WITH RESPONSIVE SIDEBAR ---------------- */
+        #main-system { display: none; width: 100%; flex-direction: column; min-height: 100vh; }
         
-        header { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 25px; text-align: center; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); position: relative; }
-        .user-badge { position: absolute; top: 20px; right: 25px; display: flex; align-items: center; gap: 10px; }
+        /* Top Navigation Bar */
+        .top-navbar { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; display: block; }
+        .top-navbar h1 { font-size: 20px; color: #ffc107; font-weight: 800; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        
+        .user-badge { display: flex; align-items: center; gap: 10px; }
         .role-indicator { background: #28a745; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; }
         .role-indicator.admin-role { background: #fd7e14; }
         .logout-btn { background: #dc3545; color: white; padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; font-size: 13px; }
 
-        .branch-selector-area { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; border-left: 6px solid #007bff; max-width: 1400px; margin-left: auto; margin-right: auto; }
-        .branch-select { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; border: 2px solid #007bff; color: #007bff; cursor: pointer; outline: none; background: #fff; }
+        /* Dashboard Wrapper layout */
+        .dashboard-wrapper { display: flex; flex: 1; position: relative; }
+        
+        /* Modern Sidebar Menu */
+        .sidebar { background-color: #1e2d3b; color: #a2b4c5; width: 260px; min-height: calc(100vh - 62px); padding: 20px 0; transition: transform 0.3s ease; position: absolute; left: 0; top: 0; bottom: 0; z-index: 90; transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); }
+        
+        .sidebar-menu { list-style: none; }
+        .sidebar-item { padding: 14px 25px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 15px; border-left: 4px solid transparent; transition: 0.2s; color: #c2cfdc; }
+        .sidebar-item:hover { background: #273849; color: #fff; }
+        .sidebar-item.active { background: #2c3e50; color: #ffc107; border-left-color: #ffc107; }
 
-        .tab-navigation { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; flex-wrap: wrap; }
-        .tab-btn { background-color: #e2e3e5; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.3s; color: #495057; }
-        .tab-btn.active { background-color: #007bff; color: white; box-shadow: 0 4px 10px rgba(0,123,255,0.2); }
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 20px; transition: all 0.3s ease; margin-left: 0; width: 100%; }
+
+        .branch-selector-area { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; border-left: 6px solid #007bff; flex-wrap: wrap; gap: 10px; }
+        .branch-select { padding: 8px 15px; font-size: 15px; font-weight: bold; border-radius: 6px; border: 2px solid #007bff; color: #007bff; cursor: pointer; outline: none; background: #fff; }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .container { display: grid; grid-template-columns: 2fr 1.1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
-        .full-container { max-width: 1400px; margin: 0 auto; }
-        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2f5; }
-        .card h2 { font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #1e3c72; }
+        /* Responsive Layouts Grid */
+        .container { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2f5; }
+        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #1e3c72; }
         
-        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
-        th, td { padding: 14px; border-bottom: 1px solid #eee; font-size: 14px; }
+        /* Tables Responsiveness */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; min-width: 600px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13.5px; }
         th { background-color: #f8f9fa; color: #495057; font-weight: 600; }
         
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #495057; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; transition: 0.3s; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13.5px; color: #495057; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 13.5px; transition: 0.3s; }
         .form-group input:focus { border-color: #007bff; box-shadow: 0 0 8px rgba(0,123,255,0.15); outline: none; }
         
-        .btn { background-color: #28a745; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 14px; }
+        .btn { background-color: #28a745; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13.5px; display: inline-block; text-align: center; }
         .btn-blue { background-color: #007bff; width: 100%; margin-top: 15px; }
         .btn-danger { background-color: #dc3545; }
         .btn-warning { background-color: #ffc107; color: black; }
         .btn-orange { background-color: #fd7e14; color: white; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; max-width: 1400px; margin: 0 auto 20px auto; }
-        .stat-card { padding: 20px; border-radius: 10px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        /* Stats Cards Layout responsive */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { padding: 15px; border-radius: 10px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .bg-sales { background: linear-gradient(135deg, #11998e, #38ef7d); }
         .bg-profit { background: linear-gradient(135deg, #f857a6, #ff5858); }
         .bg-expenses { background: linear-gradient(135deg, #3a1c1c, #c82333); }
         .bg-net { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
         .bg-cashflow { background: linear-gradient(135deg, #00c6ff, #0072ff); }
-        .stat-card h3 { font-size: 12px; text-transform: uppercase; opacity: 0.9; }
-        .stat-card p { font-size: 22px; font-weight: bold; margin-top: 8px; }
+        .stat-card h3 { font-size: 11px; text-transform: uppercase; opacity: 0.9; }
+        .stat-card p { font-size: 18px; font-weight: bold; margin-top: 6px; }
 
-        .search-box { width: 100%; padding: 12px; font-size: 15px; border: 2px solid #007bff; border-radius: 6px; margin-bottom: 15px; }
+        .search-box { width: 100%; padding: 10px; font-size: 14px; border: 2px solid #007bff; border-radius: 6px; margin-bottom: 15px; }
         .admin-only { display: none; } 
-        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; }
 
         #receipt-print { display: none; }
+
+        /* Overlay wakati Sidebar ipo wazi kwenye simu */
+        .sidebar-overlay { display: none; position: fixed; top: 62px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 80; }
+        .sidebar-overlay.open { display: block; }
+
+        /* ---------------- MEDIA QUERIES FOR SCREEN RESPONSIBILITY ---------------- */
+        @media (min-width: 992px) {
+            .menu-toggle-btn { display: none; }
+            .sidebar { transform: translateX(0); position: static; min-height: calc(100vh - 62px); }
+            .container { grid-template-columns: 2fr 1.1fr; }
+            .sidebar-overlay { display: none !important; }
+        }
+
+        @media (max-width: 768px) {
+            .login-container { flex-direction: column; max-width: 450px; }
+            .login-brand-side { width: 100%; padding: 30px; min-height: auto; }
+            .login-form-side { width: 100%; padding: 30px; }
+            .brand-info-box { display: none; }
+            #product-form { grid-template-columns: 1fr !important; }
+            #product-form .form-group { grid-column: span 1 !important; }
+        }
+
         @media print {
             body * { display: none; }
             #receipt-print, #receipt-print * { display: block; }
@@ -102,17 +135,13 @@
 </head>
 <body>
 
-    <!-- 1. UKURASA MPYA WA LOGIN (BRAND SUITE & REMINDERS) -->
     <div id="login-screen">
         <div class="login-container">
-            
-            <!-- Upande wa Kushoto: Muonekano wa Kampuni (Mbwembwe za Kiprofeshno) -->
             <div class="login-brand-side">
                 <div class="brand-header">
                     <h1>NJUNJU ELECTRONICS</h1>
                     <p class="motto">✨ "We Lift Your Smartlife"</p>
                 </div>
-                
                 <div class="brand-info-box">
                     <div class="info-segment">
                         <h4>🎯 Dira Yetu (Vision)</h4>
@@ -120,22 +149,17 @@
                     </div>
                     <div class="info-segment">
                         <h4>🚀 Dhana Yetu (Mission)</h4>
-                        <p>Kuinua maisha ya kidijitali ya kila mteja kupitia upatikanaji wa bidhaa halisi (genuine devices), uwazi wa bei ghalani, na huduma ya kipekee ya baada ya mauzo (warranty thabiti).</p>
+                        <p>Kuinua maisha ya kidijitali ya kila mteja kupitia upatikanaji wa bidhaa halisi (genuine devices), uwazi wa bei ghalani, na huduma ya kipekee ya baada ya mauzo.</p>
                     </div>
                 </div>
-                
-                <!-- Box linalobadilika nukuu kiotomatiki kwa wafanyakazi -->
                 <div class="motivation-box">
                     <h5>💡 Kikumbusho cha Leo (Motivation)</h5>
                     <p id="quote-text">Nidhamu kwenye kila namba na tabasamu kwa kila mteja ndio nguzo ya NJUNJU ELECTRONICS leo.</p>
                 </div>
             </div>
-            
-            <!-- Upande wa Kulia: Fomu Salama ya Kuingia ghalani -->
             <div class="login-form-side">
                 <h2>Ingia Kwenye Mfumo</h2>
                 <p class="welcome-msg">Tafadhali weka akaunti yako ili kufungua POS & Daftari la Cloud.</p>
-                
                 <div class="form-group">
                     <label>Jina la Mtumiaji (Username)</label>
                     <input type="text" id="login-username" placeholder="Mfn: admin au staff" required>
@@ -144,255 +168,257 @@
                     <label>Neno la Siri (Password)</label>
                     <input type="password" id="login-password" placeholder="••••••••" required>
                 </div>
-                
                 <button class="btn btn-blue" style="margin-top: 5px; padding: 14px; border-radius: 8px; font-size:15px;" onclick="handleLogin()">🔓 Fungua Mfumo Salama</button>
             </div>
-            
         </div>
     </div>
 
-
-    <!-- 2. MFUMO MKUU WA BIASHARA (HUFUNGUKA BAADA YA LOGIN) -->
     <div id="main-system">
-        <header>
-            <h1>NJUNJU ELECTRONICS</h1>
-            <p>Mfumo wa Cloud POS ovyofanya kazi LIVE wenye Kudhibiti Wafanyakazi</p>
-            <div class="user-badge">
-                <span id="current-user-tag" class="role-indicator">Staff Mode</span>
-                <button class="logout-btn" onclick="handleLogout()">🚪 Ondoka</button>
+        
+        <div class="top-navbar">
+            <div class="nav-left">
+                <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+                <h1>NJUNJU ELECTRONICS</h1>
             </div>
-        </header>
-
-        <div class="branch-selector-area">
-            <span style="font-size: 18px; font-weight: bold; color:#1e3c72;">🏬 TAWI UNALOLIANGALIA SASA:</span>
-            <select id="global-branch-select" class="branch-select" onchange="loadAllDataRealtime()">
-                <option value="Matawi Yote">🌐 Matawi Yote (Jumla Kuu)</option>
-                <option value="Kariakoo Shop" selected>🏢 Kariakoo Shop (Uhuru St.)</option>
-                <option value="Mbagala Shop">🏪 Mbagala Shop</option>
-            </select>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card bg-sales"><h3>💰 Mauzo (Cash In)</h3><p id="stat-sales">0/=</p></div>
-            <div class="stat-card bg-profit admin-only"><h3>📈 Faida ya Mzigo</h3><p id="stat-profit">0/=</p></div>
-            <div class="stat-card bg-expenses"><h3>📉 Matumizi (Expenses)</h3><p id="stat-expenses">0/=</p></div>
-            <div class="stat-card bg-net admin-only"><h3>💎 FAIDA HALISI</h3><p id="stat-net" style="font-size:22px; font-weight:900;">0/=</p></div>
-            <div class="stat-card bg-cashflow"><h3>🔄 Cash Flow</h3><p id="stat-cashflow">0/=</p></div>
-        </div>
-
-        <div class="full-container">
-            <div class="tab-navigation">
-                <button class="tab-btn active" onclick="openTab('stoo-tab')">📦 Stoo & Kikapu</button>
-                <button class="tab-btn" onclick="openTab('mauzo-tab')">📜 Daftari la Mauzo</button>
-                <button class="tab-btn" onclick="openTab('returns-tab')">↩️ Daftari la Returns</button>
-                <button class="tab-btn" onclick="openTab('matumizi-tab')">💸 Matumizi</button>
-                <button class="tab-btn" onclick="openTab('madeni-tab')">🤝 Daftari la Madeni</button>
-                <button class="tab-btn admin-only" id="report-tab-btn" onclick="openTab('report-tab')">📊 Ripoti za Biashara</button>
-                <button class="tab-btn admin-only" id="settings-tab-btn" onclick="openTab('settings-tab')">⚙️ Panel ya Admin</button>
+            <div class="nav-right">
+                <div class="user-badge">
+                    <span id="current-user-tag" class="role-indicator">Staff Mode</span>
+                    <button class="logout-btn" onclick="handleLogout()">🚪</button>
+                </div>
             </div>
         </div>
 
-        <!-- STOO TAB -->
-        <div id="stoo-tab" class="tab-content active">
-            <div class="container">
-                <div>
+        <div class="dashboard-wrapper">
+            
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+            <div class="sidebar" id="appSidebar">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item active" id="btn-stoo-tab" onclick="navigateToTab('stoo-tab')">📦 Stoo & Kikapu</li>
+                    <li class="sidebar-item" id="btn-mauzo-tab" onclick="navigateToTab('mauzo-tab')">📜 Daftari la Mauzo</li>
+                    <li class="sidebar-item" id="btn-returns-tab" onclick="navigateToTab('returns-tab')">↩️ Daftari la Returns</li>
+                    <li class="sidebar-item" id="btn-matumizi-tab" onclick="navigateToTab('matumizi-tab')">💸 Rekodi Matumizi</li>
+                    <li class="sidebar-item" id="btn-madeni-tab" onclick="navigateToTab('madeni-tab')">🤝 Daftari la Madeni</li>
+                    <li class="sidebar-item admin-only" id="btn-report-tab" onclick="navigateToTab('report-tab')">📊 Ripoti Kuu</li>
+                    <li class="sidebar-item admin-only" id="btn-settings-tab" onclick="navigateToTab('settings-tab')">⚙️ Panel ya Admin</li>
+                </ul>
+            </div>
+
+            <div class="main-content">
+                
+                <div class="branch-selector-area">
+                    <span style="font-size: 15px; font-weight: bold; color:#1e3c72;">🏬 TAWI:</span>
+                    <select id="global-branch-select" class="branch-select" onchange="loadAllDataRealtime()">
+                        <option value="Matawi Yote">🌐 Matawi Yote (Jumla Kuu)</option>
+                        <option value="Kariakoo Shop" selected>🏢 Kariakoo Shop (Uhuru St.)</option>
+                        <option value="Mbagala Shop">🏪 Mbagala Shop</option>
+                    </select>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card bg-sales"><h3>💰 Mauzo</h3><p id="stat-sales">0/=</p></div>
+                    <div class="stat-card bg-profit admin-only"><h3>📈 Mzigo Faida</h3><p id="stat-profit">0/=</p></div>
+                    <div class="stat-card bg-expenses"><h3>📉 Matumizi</h3><p id="stat-expenses">0/=</p></div>
+                    <div class="stat-card bg-net admin-only"><h3>💎 NET FAIDA</h3><p id="stat-net">0/=</p></div>
+                    <div class="stat-card bg-cashflow"><h3>🔄 Cash Flow</h3><p id="stat-cashflow">0/=</p></div>
+                </div>
+
+                <div id="stoo-tab" class="tab-content active">
+                    <div class="container">
+                        <div>
+                            <div class="card">
+                                <h2 id="form-title">➕ Sajili Bidhaa Mpya</h2>
+                                <form id="product-form" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: end;">
+                                    <input type="hidden" id="edit-product-id">
+                                    <div class="form-group"><label>Jina la Simu / Bidhaa</label><input type="text" id="p-name" placeholder="Samsung Galaxy A14" required></div>
+                                    <div class="form-group"><label>Namba ya IMEI / Serial</label><input type="text" id="p-imei" placeholder="Skani IMEI"></div>
+                                    <div class="form-group"><label>Kundi (Category)</label><input type="text" id="p-cat" placeholder="Smartphones" required></div>
+                                    <div class="form-group"><label>Idadi (Qty)</label><input type="number" id="p-qty" placeholder="Pcs" required></div>
+                                    <div class="form-group admin-only" id="buying-field-group"><label>Bei ya Kununulia</label><input type="number" id="p-buying" value="0"></div>
+                                    <div class="form-group"><label>Bei ya Reja Reja</label><input type="number" id="p-selling" placeholder="Tsh" required></div>
+                                    <div class="form-group"><label>Bei ya Jumla</label><input type="number" id="p-wholesale" placeholder="Tsh" required></div>
+                                    <div class="form-group"><label>📍 Peleka Tawi</label>
+                                        <select id="p-branch">
+                                            <option value="Kariakoo Shop">Kariakoo Shop</option>
+                                            <option value="Mbagala Shop">Mbagala Shop</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="grid-column: span 2; display: flex; gap: 10px; margin-bottom: 0;">
+                                        <button type="button" id="save-product-btn" class="btn" style="flex:3; padding:12px;" onclick="saveProduct()">📦 Hifadhi Cloud</button>
+                                        <button type="button" id="cancel-edit-btn" class="btn btn-danger" style="flex:1; display:none;" onclick="cancelEditMode()">Ghairi</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <h2>📦 Mzigo Uliopo Stoo</h2>
+                                <input type="text" id="stock-search" class="search-box" placeholder="🔍 Tafuta kwa jina au IMEI..." onkeyup="filterStock()">
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr><th>Bidhaa</th><th>IMEI Number</th><th>Tawi</th><th>Reja</th><th>Jumla</th><th>Stock</th><th>Kazi</th></tr>
+                                        </thead>
+                                        <tbody id="products-table"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="height: fit-content;">
+                            <h2>🛒 Kikapu cha Mauzo</h2>
+                            <div id="cart-section"><p style="text-align: center; color: #999; padding: 20px 0;">Bonyeza "Uza" kwenye simu iliyopo stoo ghalani.</p></div>
+                            
+                            <div id="cart-details-area" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+                                <div class="form-group"><label>👤 Jina la Mteja</label><input type="text" id="c-name" placeholder="Mteja"></div>
+                                <div class="form-group"><label>📞 Namba ya Simu</label><input type="text" id="c-phone" placeholder="0712XXXXXX"></div>
+                                <div class="form-group"><label>🛡️ Dhamana (Warranty)</label>
+                                    <select id="c-warranty">
+                                        <option value="Miezi 3">Miezi 3 (Standard)</option>
+                                        <option value="Miezi 6">Miezi 6</option>
+                                        <option value="Mwaka 1">Mwaka 1</option>
+                                        <option value="Haina Warranty">Haina Warranty</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>🏷️ Aina ya Bei</label>
+                                    <select id="c-price-type" onchange="updateTotal()">
+                                        <option value="retail">Bei ya Reja Reja</option>
+                                        <option value="wholesale">Bei ya Jumla (Wholesale)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>💵 Mfumo wa Malipo</label>
+                                    <select id="c-pay-type" onchange="toggleDueDate()">
+                                        <option value="cash">Tayari Amelipa (Cash)</option>
+                                        <option value="debt">Mkopo (Anadaiwa)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="due-date-group" style="display:none;"><label>📅 Tarehe ya Ahadi</label><input type="date" id="c-due-date"></div>
+                                
+                                <div id="cart-total" style="margin-top:20px; font-weight:bold; font-size:16px; text-align:right;">
+                                    Jumla Kuu: <span id="total-amount" style="color:#28a745;">0</span>/=
+                                    <button class="btn btn-blue" style="padding:12px;" onclick="completeSale()">💰 Kamilisha Mauzo & Risiti</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mauzo-tab" class="tab-content">
                     <div class="card">
-                        <h2 id="form-title">➕ Sajili Bidhaa Mpya Stoo</h2>
-                        <form id="product-form" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end;">
-                            <input type="hidden" id="edit-product-id">
-                            <div class="form-group"><label>Jina la Simu / Bidhaa</label><input type="text" id="p-name" placeholder="Samsung Galaxy A14" required></div>
-                            <div class="form-group"><label>Namba ya IMEI / Serial</label><input type="text" id="p-imei" placeholder="Skani au andika IMEI"></div>
-                            <div class="form-group"><label>Kundi (Category)</label><input type="text" id="p-cat" placeholder="Smartphones" required></div>
-                            <div class="form-group"><label>Idadi (Qty)</label><input type="number" id="p-qty" placeholder="Pcs" required></div>
-                            <div class="form-group admin-only" id="buying-field-group"><label>Bei ya Kununulia</label><input type="number" id="p-buying" value="0"></div>
-                            <div class="form-group"><label>Bei ya Reja Reja</label><input type="number" id="p-selling" placeholder="Tsh" required></div>
-                            <div class="form-group"><label>Bei ya Jumla (Wholesale)</label><input type="number" id="p-wholesale" placeholder="Tsh" required></div>
-                            
-                            <div class="form-group"><label>📍 Peleka Tawi Gani?</label>
-                                <select id="p-branch">
-                                    <option value="Kariakoo Shop">Kariakoo Shop</option>
-                                    <option value="Mbagala Shop">Mbagala Shop</option>
-                                </select>
+                        <h2>📜 Daftari la Mauzo Yote</h2>
+                        <input type="text" id="sales-search" class="search-box" placeholder="🔍 Tafuta kwa IMEI au Mteja..." onkeyup="filterSales()">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr><th>ID</th><th>Bidhaa</th><th>IMEI Number</th><th>📍 Tawi</th><th>👤 Mteja</th><th>Idadi</th><th>Kiasi</th><th class="admin-only">Faida</th><th>Tarehe</th><th class="admin-only">Kazi</th></tr>
+                                </thead>
+                                <tbody id="sales-history-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="returns-tab" class="tab-content">
+                    <div class="card">
+                        <h2>↩️ Rekodi za Simu Zilizorudishwa (Returns)</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr><th>Bidhaa</th><th>IMEI Number</th><th>📍 Tawi</th><th>👤 Mteja</th><th>Idadi</th><th>Pesa Refunded</th><th>Sababu ya Return</th><th>Tarehe</th></tr>
+                                </thead>
+                                <tbody id="returns-history-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="matumizi-tab" class="tab-content">
+                    <div class="container">
+                        <div class="card">
+                            <h2>💸 Rekodi Matumizi</h2>
+                            <form id="expense-form">
+                                <div class="form-group"><label>Maelezo ya Matumizi</label><input type="text" id="e-desc" placeholder="Kodi, Bolt, Umeme" required></div>
+                                <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="e-amount" required></div>
+                                <button type="button" class="btn btn-danger" style="width:100%; padding:12px;" onclick="addExpense()">💸 Hifadhi Matumizi</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h2>📉 Orodha ya Matumizi</h2>
+                            <div class="table-responsive">
+                                <table><thead><tr><th>Maelezo</th><th>Kiasi</th><th>Tarehe</th></tr></thead><tbody id="expenses-table"></tbody></table>
                             </div>
-                            
-                            <div class="form-group" style="grid-column: span 4; display: flex; gap: 10px;">
-                                <button type="button" id="save-product-btn" class="btn" style="flex:3; padding:14px;" onclick="saveProduct()">📦 Hifadhi Stoo ya Cloud</button>
-                                <button type="button" id="cancel-edit-btn" class="btn btn-danger" style="flex:1; padding:14px; display:none;" onclick="cancelEditMode()">Ghairi</button>
-                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="madeni-tab" class="tab-content">
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h2>➕ Sajili Deni la Msambazaji (Supplier Debt)</h2>
+                        <form id="debt-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end;">
+                            <div class="form-group"><label>Jina la Supplier</label><input type="text" id="d-supplier" placeholder="Supplier Name"></div>
+                            <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="d-amount"></div>
+                            <div class="form-group"><label>📅 Tarehe ya Kulipa</label><input type="date" id="d-due-date"></div>
+                            <div class="form-group"><button type="button" class="btn" style="width:100%; padding:10px; background-color:#f857a6;" onclick="addSupplierDebt()">🤝 Hifadhi Deni</button></div>
                         </form>
                     </div>
-
                     <div class="card">
-                        <h2>📦 Mzigo Uliopo Ghalani</h2>
-                        <input type="text" id="stock-search" class="search-box" placeholder="🔍 Tafuta simu haraka kwa Jina au IMEI ya stoo..." onkeyup="filterStock()">
-                        <table>
-                            <thead>
-                                <tr><th>Bidhaa</th><th>IMEI Number</th><th>Tawi Lilipo</th><th>Bei ya Reja</th><th>Bei ya Jumla</th><th>Stock</th><th>Kazi</th></tr>
-                            </thead>
-                            <tbody id="products-table"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- KIKAPU SECTION -->
-                <div class="card" style="height: fit-content;">
-                    <h2>🛒 Kikapu cha Mauzo</h2>
-                    <div id="cart-section"><p style="text-align: center; color: #999; padding: 20px 0;">Bonyeza "Uza" kwenye simu husika ghalani.</p></div>
-                    
-                    <div id="cart-details-area" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
-                        <div class="form-group"><label>👤 Jina la Mteja</label><input type="text" id="c-name" placeholder="Mteja"></div>
-                        <div class="form-group"><label>📞 Namba ya Simu</label><input type="text" id="c-phone" placeholder="0712XXXXXX"></div>
-                        
-                        <div class="form-group"><label>🛡️ Muda wa Warranty</label>
-                            <select id="c-warranty">
-                                <option value="Miezi 3">Miezi 3 (Standard)</option>
-                                <option value="Miezi 6">Miezi 6</option>
-                                <option value="Mwaka 1">Mwaka 1</option>
-                                <option value="Haina Warranty">Haina Warranty</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group"><label>🏷️ Chagua Aina ya Bei</label>
-                            <select id="c-price-type" onchange="updateTotal()">
-                                <option value="retail">Bei ya Reja Reja</option>
-                                <option value="wholesale">Bei ya Jumla (Wholesale)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group"><label>💵 Mfumo wa Malipo</label>
-                            <select id="c-pay-type" onchange="toggleDueDate()">
-                                <option value="cash">Tayari Amelipa (Cash)</option>
-                                <option value="debt">Mkopo (Mteja Anadaiwa)</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="due-date-group" style="display:none;"><label>📅 Tarehe ya Ahadi ya Kulipa</label><input type="date" id="c-due-date"></div>
-                        
-                        <div id="cart-total" style="margin-top:20px; font-weight:bold; font-size:18px; text-align:right;">
-                            Jumla: <span id="total-amount" style="color:#28a745;">0</span>/=
-                            <button class="btn btn-blue" style="padding:12px;" onclick="completeSale()">💰 Kamilisha Mauzo & Risiti</button>
+                        <h2>🤝 Daftari la Madeni Yote</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr><th>Aina</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Ahadi Kulipa</th><th>Tarehe</th><th>Kazi</th></tr>
+                                </thead>
+                                <tbody id="debts-table"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- MAUZO TAB -->
-        <div id="mauzo-tab" class="tab-content">
-            <div class="card full-container">
-                <h2>📜 Daftari la Mauzo Yote na IMEI Zilizotoka</h2>
-                <input type="text" id="sales-search" class="search-box" placeholder="🔍 Skani au Andika IMEI / Jina la mteja kupata risiti..." onkeyup="filterSales()">
-                <table>
-                    <thead>
-                        <tr><th>ID</th><th>Bidhaa</th><th>IMEI Iliyotoka</th><th>📍 Tawi</th><th>👤 Mteja</th><th>Idadi</th><th>Pesa</th><th class="admin-only">Faida</th><th>Tarehe</th><th class="admin-only">Kazi</th></tr>
-                    </thead>
-                    <tbody id="sales-history-table"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- RETURNS TAB -->
-        <div id="returns-tab" class="tab-content">
-            <div class="card full-container">
-                <h2>↩️ Rekodi za Simu/Bidhaa Zilizorudishwa (Returns Log)</h2>
-                <table>
-                    <thead>
-                        <tr><th>Bidhaa</th><th>IMEI Number</th><th>📍 Tawi</th><th>👤 Mteja</th><th>Idadi</th><th>Kiasi Kilichorudishwa</th><th>Sababu ya Kurudisha</th><th>Tarehe</th></tr>
-                    </thead>
-                    <tbody id="returns-history-table"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- MATUMIZI TAB -->
-        <div id="matumizi-tab" class="tab-content">
-            <div class="container">
-                <div class="card">
-                    <h2>💸 Rekodi Matumizi</h2>
-                    <form id="expense-form">
-                        <div class="form-group"><label>Maelezo</label><input type="text" id="e-desc" placeholder="Kodi, Umeme, Bolt" required></div>
-                        <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="e-amount" required></div>
-                        <button type="button" class="btn btn-danger" style="width:100%; padding:10px;" onclick="addExpense()">💸 Hifadhi</button>
-                    </form>
-                </div>
-                <div class="card"><h2>📉 Orodha ya Matumizi</h2><table><thead><tr><th>Maelezo</th><th>Kiasi</th><th>Tarehe</th></tr></thead><tbody id="expenses-table"></tbody></table></div>
-            </div>
-        </div>
-
-        <!-- MADENI TAB -->
-        <div id="madeni-tab" class="tab-content">
-            <div class="card full-container" style="margin-bottom: 20px;">
-                <h2>➕ Sajili Deni Jipya la Msambazaji (Supplier)</h2>
-                <form id="debt-form" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 15px; align-items: end;">
-                    <div class="form-group"><label>Msambazaji</label><input type="text" id="d-supplier" placeholder="Supplier"></div>
-                    <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="d-amount"></div>
-                    <div class="form-group"><label>📅 Tarehe ya kumlipa</label><input type="date" id="d-due-date"></div>
-                    <div class="form-group"><button type="button" class="btn" style="width:100%; padding:10px; background-color:#f857a6;" onclick="addSupplierDebt()">🤝 Hifadhi Deni</button></div>
-                </form>
-            </div>
-            <div class="card full-container">
-                <h2>🤝 Daftari la Madeni</h2>
-                <table>
-                    <thead>
-                        <tr><th>Aina</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Ahadi Kulipa</th><th>Tarehe ya Deni</th><th>Kazi</th></tr>
-                    </thead>
-                    <tbody id="debts-table"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- RIPOTI TAB -->
-        <div id="report-tab" class="tab-content admin-only">
-            <div class="card full-container">
-                <h2>📊 Ripoti ya Maendeleo ya Biashara ya Kila Mwezi</h2>
-                <div style="display: flex; gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px;">
-                    <div style="flex:1;">
-                        <label style="font-weight: bold; font-size:14px;">Chagua Mwezi:</label>
-                        <select id="report-month">
-                            <option value="0">Januari</option><option value="1">Februari</option><option value="2">Machi</option>
-                            <option value="3">Aprili</option><option value="4">Mei</option><option value="5">Juni</option>
-                            <option value="6">Julai</option><option value="7">Agosti</option><option value="8">Septemba</option>
-                            <option value="9">Oktoba</option><option value="10">Novemba</option><option value="11">Desemba</option>
-                        </select>
-                    </div>
-                    <div style="flex:1;">
-                        <label style="font-weight: bold; font-size:14px;">Chagua Mwaka:</label>
-                        <select id="report-year">
-                            <option value="2026" selected>2026</option><option value="2027">2027</option>
-                        </select>
-                    </div>
-                    <div style="display: flex; align-items: flex-end;">
-                        <button class="btn btn-blue" style="margin:0; padding:10px 25px;" onclick="generateMonthlyReport()">📊 Tengeneza Ripoti</button>
+                <div id="report-tab" class="tab-content admin-only">
+                    <div class="card">
+                        <h2>📊 Ripoti ya Maendeleo ya Kila Mwezi</h2>
+                        <div style="display: flex; gap: 12px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; flex-wrap: wrap;">
+                            <div style="flex:1; min-width: 140px;">
+                                <label style="font-weight: bold; font-size:13px;">Chagua Mwezi:</label>
+                                <select id="report-month">
+                                    <option value="0">Januari</option><option value="1">Februari</option><option value="2">Machi</option>
+                                    <option value="3">Aprili</option><option value="4">Mei</option><option value="5">Juni</option>
+                                    <option value="6">Julai</option><option value="7">Agosti</option><option value="8">Septemba</option>
+                                    <option value="9">Oktoba</option><option value="10">Novemba</option><option value="11">Desemba</option>
+                                </select>
+                            </div>
+                            <div style="flex:1; min-width: 140px;">
+                                <label style="font-weight: bold; font-size:13px;">Chagua Mwaka:</label>
+                                <select id="report-year"><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; width: 100%; margin-top:10px;">
+                                <button class="btn btn-blue" style="margin:0; padding:12px;" onclick="generateMonthlyReport()">📊 Tengeneza Ripoti ya Mwezi</button>
+                            </div>
+                        </div>
+                        <div id="report-result-area" style="display:none; margin-top:20px;">
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px;">
+                                <div style="background:#e3f2fd; padding:15px; border-radius:6px; text-align:center;"><h4>Jumla ya Mauzo</h4><p id="rep-sales" style="font-size:18px; font-weight:bold; color:#0d47a1;">0/=</p></div>
+                                <div style="background:#ffebee; padding:15px; border-radius:6px; text-align:center;"><h4>Jumla ya Matumizi</h4><p id="rep-expenses" style="font-size:18px; font-weight:bold; color:#b71c1c;">0/=</p></div>
+                                <div style="background:#e8f5e9; padding:15px; border-radius:6px; text-align:center;"><h4>Faida Halisi</h4><p id="rep-net" style="font-size:18px; font-weight:bold; color:#1b5e20;">0/=</p></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div id="report-result-area" style="display:none; margin-top:20px;">
-                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:20px;">
-                        <div style="background:#e3f2fd; padding:15px; border-radius:6px; text-align:center;"><h4>Jumla ya Mauzo</h4><p id="rep-sales" style="font-size:20px; font-weight:bold; color:#0d47a1;">0/=</p></div>
-                        <div style="background:#ffebee; padding:15px; border-radius:6px; text-align:center;"><h4>Jumla ya Matumizi</h4><p id="rep-expenses" style="font-size:20px; font-weight:bold; color:#b71c1c;">0/=</p></div>
-                        <div style="background:#e8f5e9; padding:15px; border-radius:6px; text-align:center;"><h4>Faida Halisi (Net)</h4><p id="rep-net" style="font-size:20px; font-weight:bold; color:#1b5e20;">0/=</p></div>
+
+                <div id="settings-tab" class="tab-content admin-only">
+                    <div class="container">
+                        <div class="card">
+                            <h2>🔐 Badili Passwords za Mfumo</h2>
+                            <div class="form-group"><label>Password Mpya ya ADMIN</label><input type="password" id="new-admin-pass" placeholder="Password ya admin..."></div>
+                            <div class="form-group"><label>Password Mpya ya STAFF</label><input type="password" id="new-staff-pass" placeholder="Password ya staff..."></div>
+                            <button class="btn btn-blue" onclick="changeSystemPasswords()">💾 Hifadhi Passwords Mpya</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- SETTINGS TAB -->
-        <div id="settings-tab" class="tab-content admin-only">
-            <div class="container" style="grid-template-columns: 1fr 1fr;">
-                <div class="card">
-                    <h2>🔐 Badili Passwords za Mfumo</h2>
-                    <div class="form-group"><label>Password Mpya ya ADMIN</label><input type="password" id="new-admin-pass" placeholder="Password ya admin..."></div>
-                    <div class="form-group"><label>Password Mpya ya STAFF</label><input type="password" id="new-staff-pass" placeholder="Password ya staff..."></div>
-                    <button class="btn btn-blue" onclick="changeSystemPasswords()">💾 Hifadhi Passwords Mpya</button>
-                </div>
-                <div class="card" style="border: 1px solid #dc3545;">
-                    <h2>⚠️ System Reset</h2>
-                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Kumbukumbu zote zinafutwa Firebase Console pekee.</p>
-                    <button class="btn btn-danger" onclick="alert('Nenda Firebase Console kuifuta data moja kwa moja.')">🚨 Futa Kila Kitu</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- RETAIL PRINT WINDOW -->
     <div id="receipt-print">
         <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px;">
             <h2>NJUNJU ELECTRONICS</h2><p>Matawi ya Kariakoo & Mbagala</p><h3>STAKABADHI (RECEIPT)</h3>
@@ -408,7 +434,6 @@
         <div style="text-align: right; padding-top: 10px;"><h3>JUMLA KUU: <span id="rec-total"></span>/=</h3></div>
     </div>
 
-    <!-- CODE SCRIPT YA CORE ENGINE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
@@ -434,7 +459,6 @@
         let allExpensesCached = [];
         let allProductsCached = {};
 
-        // ENGINE YA DYNAMIC MOTIVATIONAL QUOTES (Zinajirudia kwa kubahatisha asubuhi kuelimisha staff)
         const staffQuotes = [
             "Uaminifu kwenye namba na usahihi wa IMEI ndio siri ya ukuaji wa duka letu.",
             "Kila simu halisi (genuine device) tunayouza leo inajenga ufalme wetu wa kesho. Kazi iendelee!",
@@ -445,7 +469,32 @@
         
         document.getElementById('quote-text').innerText = staffQuotes[Math.floor(Math.random() * staffQuotes.length)];
 
-        // Kazi ya Kuingia Kwenye Mfumo (Login Engine)
+        // Kazi ya kufungua/kufunga Sidebar kwenye simu
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('appSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        // Kazi ya kubadili kurasa (Tabs navigation)
+        window.navigateToTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            // Weka active class kwenye item ya sasa hivi ya sidebar
+            const activeMenuItem = document.querySelector(`.sidebar-menu li[onclick*="${tabId}"]`);
+            if (activeMenuItem) activeMenuItem.classList.add('active');
+            
+            // Funga sidebar kiotomatiki kama unatumia simu
+            if(window.innerWidth < 992) {
+                toggleSidebar();
+            }
+            applyAdminVisibility();
+        }
+
         window.handleLogin = async function() {
             const user = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
@@ -472,7 +521,7 @@
 
         function showSystem(userText, className) {
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-system').style.display = 'block';
+            document.getElementById('main-system').style.display = 'flex';
             
             const tag = document.getElementById('current-user-tag');
             tag.innerText = userText;
@@ -508,20 +557,19 @@
         function applyAdminVisibility() {
             const adminElements = document.querySelectorAll('.admin-only');
             adminElements.forEach(el => {
-                el.style.display = isAdmin ? (el.tagName === 'TR' || el.tagName === 'TH' || el.tagName === 'TD' ? 'table-cell' : 'block') : 'none';
+                if (isAdmin) {
+                    if (el.tagName === 'TR' || el.tagName === 'TH' || el.tagName === 'TD') {
+                        el.style.display = 'table-cell';
+                    } else if (el.tagName === 'LI') {
+                        el.style.display = 'flex';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                } else {
+                    el.style.display = 'none';
+                }
             });
-            document.getElementById('report-tab-btn').style.display = isAdmin ? "block" : "none";
-            document.getElementById('settings-tab-btn').style.display = isAdmin ? "block" : "none";
             document.getElementById('buying-field-group').style.display = isAdmin ? "block" : "none";
-            document.querySelectorAll('.admin-actions').forEach(el => { el.style.display = isAdmin ? "inline-block" : "none"; });
-        }
-
-        window.openTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-            applyAdminVisibility();
         }
 
         window.toggleDueDate = function() {
@@ -574,8 +622,8 @@
         window.cancelEditMode = function() {
             document.getElementById('edit-product-id').value = '';
             document.getElementById('product-form').reset();
-            document.getElementById('form-title').innerText = "➕ Sajili Bidhaa Mpya Stoo";
-            document.getElementById('save-product-btn').innerText = "📦 Hifadhi Stoo ya Cloud";
+            document.getElementById('form-title').innerText = "➕ Sajili Bidhaa Mpya";
+            document.getElementById('save-product-btn').innerText = "📦 Hifadhi Cloud";
             document.getElementById('cancel-edit-btn').style.display = "none";
         }
 
@@ -626,14 +674,14 @@
                     tableBody.innerHTML += `
                         <tr>
                             <td><strong>${p.name}</strong></td><td><span style="font-family:monospace;">${p.imei_number || '-'}</span></td>
-                            <td><span class="badge" style="background:#e3eafc; color:#1e3c72;">${p.branch}</span></td>
-                            <td style="color:#28a745; font-weight:bold;">${p.selling_price.toLocaleString()}/=</td>
-                            <td style="color:#007bff; font-weight:bold;">${p.wholesale_price.toLocaleString()}/=</td>
+                            <td><span class="badge" style="background:#e3eafc; color:#1e3c72;">${p.branch.split(' ')[0]}</span></td>
+                            <td style="color:#28a745; font-weight:bold;">${p.selling_price.toLocaleString()}</td>
+                            <td style="color:#007bff; font-weight:bold;">${p.wholesale_price.toLocaleString()}</td>
                             <td><span class="badge" style="${stockStyle}">${p.stock_quantity} Pcs</span></td>
                             <td>
-                                <button class="btn" style="padding: 5px 10px;" onclick="addToCart('${p.id}', '${p.name}', '${p.imei_number||''}', ${p.buying_price}, ${p.selling_price}, ${p.wholesale_price}, ${p.stock_quantity}, '${p.branch}')">Uza</button>
-                                <button class="btn btn-warning admin-actions" style="padding: 5px 10px; display:${isAdmin?'inline-block':'none'};" onclick="enterEditMode('${p.id}')">✏️</button>
-                                <button class="btn btn-danger admin-actions" style="padding: 5px 10px; display:${isAdmin?'inline-block':'none'};" onclick="deleteProduct('${p.id}')">🗑️</button>
+                                <button class="btn" style="padding: 5px 8px; font-size:12px;" onclick="addToCart('${p.id}', '${p.name}', '${p.imei_number||''}', ${p.buying_price}, ${p.selling_price}, ${p.wholesale_price}, ${p.stock_quantity}, '${p.branch}')">Uza</button>
+                                <button class="btn btn-warning admin-actions" style="padding: 5px 8px; font-size:11px; display:${isAdmin?'inline-block':'none'};" onclick="enterEditMode('${p.id}')">✏️</button>
+                                <button class="btn btn-danger admin-actions" style="padding: 5px 8px; font-size:11px; display:${isAdmin?'inline-block':'none'};" onclick="deleteProduct('${p.id}')">🗑️</button>
                             </td>
                         </tr>`;
                 });
@@ -652,7 +700,7 @@
                     historyBody.innerHTML += `
                         <tr>
                             <td>#${count++}</td><td><strong>${s.name}</strong></td><td>${s.imei_sold || '-'}</td>
-                            <td><span class="badge" style="background:#f0f4f8; color:#333;">${s.branch}</span></td>
+                            <td><span class="badge" style="background:#f0f4f8; color:#333;">${s.branch.split(' ')[0]}</span></td>
                             <td>${s.customer_name || 'Walk-in'}</td><td>${s.quantity} Pcs</td>
                             <td style="color:green; font-weight:bold;">${s.total_price.toLocaleString()}</td>
                             <td class="admin-only" style="color:blue; display:${isAdmin?'table-cell':'none'};">${s.profit.toLocaleString()}</td>
@@ -691,7 +739,7 @@
                     returnsBody.innerHTML += `
                         <tr style="background-color: #fffaf0;">
                             <td><strong>${r.name}</strong></td><td>${r.imei_number || '-'}</td>
-                            <td><span class="badge" style="background:#fd7e14; color:white;">${r.branch}</span></td>
+                            <td><span class="badge" style="background:#fd7e14; color:white;">${r.branch.split(' ')[0]}</span></td>
                             <td>${r.customer_name}</td><td>${r.quantity} Pcs</td>
                             <td style="color:#dc3545; font-weight:bold;">-${r.amount_refunded.toLocaleString()}/=</td>
                             <td style="color:#ca6a00; font-style:italic;">"${r.reason}"</td><td>${t_date}</td>
