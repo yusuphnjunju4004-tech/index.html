@@ -531,10 +531,20 @@
             loadAllDataRealtime();
         }
 
-        window.handleLogout = function() {
-            isAdmin = false; document.getElementById('main-system').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
-        }
+        function handleLogin() {
+    const usernameInput = document.getElementById('login-username').value.trim();
+    const passwordInput = document.getElementById('login-password').value.trim();
+
+    // Replace 'YOUR_NEW_PASSWORD_HERE' with your desired password
+    if (usernameInput === 'admin' && passwordInput === 'YOUR_NEW_PASSWORD_HERE') {
+        currentUser = { role: 'admin', name: 'Admin' };
+        showMainSystem();
+    } else if (usernameInput === 'staff' && passwordInput === 'STAFF_NEW_PASSWORD') {
+        currentUser = { role: 'staff', name: 'Staff' };
+        showMainSystem();
+    } else {
+        alert('Nenosiri au Jina la Mtumiaji si sahihi!');
+    }
 
         window.changeSystemPasswords = async function() {
             const newAdmin = document.getElementById('new-admin-pass').value.trim();
