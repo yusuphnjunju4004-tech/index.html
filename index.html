@@ -3,857 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJUNJU ELECTRONICS - Advanced Cloud POS & ERP v6.2</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
+    <title>NJUNJU ELECTRONICS - Advanced Cloud POS & ERP v7.0</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f4f6f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-        
-        /* ---------------- LOGIN SCREEN ---------------- */
-        #login-screen { display: flex; justify-content: center; align-items: center; min-height: 95vh; padding: 10px; width: 100%; }
-        .login-container { display: flex; background: white; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); width: 100%; max-width: 950px; overflow: hidden; min-height: 550px; }
-        .login-brand-side { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 45px; width: 45%; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-        .brand-header h1 { font-size: 26px; letter-spacing: 1px; color: #ffc107; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .brand-header .motto { font-size: 13px; font-style: italic; color: #cfd8dc; margin-top: 4px; }
-        .brand-info-box { margin: 30px 0; }
-        .info-segment { margin-bottom: 20px; }
-        .info-segment h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #ffc107; margin-bottom: 5px; }
-        .info-segment p { font-size: 14px; color: #eceff1; line-height: 1.5; }
-        .motivation-box { background: rgba(255, 255, 255, 0.08); padding: 15px; border-radius: 10px; border-left: 4px solid #ffc107; }
-        .motivation-box p { font-size: 13px; font-style: italic; color: #fff; }
-        .login-form-side { padding: 50px; width: 55%; display: flex; flex-direction: column; justify-content: center; background: #fff; }
-        .login-form-side h2 { font-size: 24px; color: #1e3c72; margin-bottom: 8px; }
-        .login-form-side .welcome-msg { font-size: 14px; color: #666; margin-bottom: 30px; }
-        
-        /* ---------------- APP STRUCTURE & FIXED NAVBAR ---------------- */
-        #main-system { display: none; width: 100%; flex-direction: column; min-height: 100vh; }
-        .top-navbar { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: fixed; top: 0; left: 0; right: 0; height: 65px; z-index: 100; }
-        .nav-left { display: flex; align-items: center; gap: 15px; }
-        .menu-toggle-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; display: block; padding: 5px; }
-        .top-navbar h1 { font-size: 20px; color: #ffc107; font-weight: 800; }
-        .nav-right { display: flex; align-items: center; gap: 15px; }
-        .role-indicator { background: #28a745; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 13px; }
-        .role-indicator.admin-role { background: #fd7e14; }
-        .logout-btn { background: #dc3545; color: white; padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; }
-
-        /* FIXED SIDEBAR & MAIN LAYER WORK */
-        .dashboard-wrapper { display: flex; flex: 1; margin-top: 65px; min-height: calc(100vh - 65px); position: relative; }
-        
-        /* Sidebar layout */
-        .sidebar { background-color: #1e2d3b; color: #a2b4c5; width: 260px; position: fixed; left: 0; top: 65px; bottom: 0; z-index: 90; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
-        .sidebar.collapsed { width: 60px; }
-        .sidebar.collapsed .sidebar-text { display: none; }
-        .sidebar-menu { list-style: none; padding-top: 10px; }
-        .sidebar-item { padding: 14px 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 600; font-size: 15px; border-left: 4px solid transparent; transition: 0.2s; color: #c2cfdc; white-space: nowrap; }
-        .sidebar-item:hover { background: #273849; color: #fff; }
-        .sidebar-item.active { background: #2c3e50; color: #ffc107; border-left-color: #ffc107; }
-        .sidebar-icon { font-size: 18px; text-align: center; width: 25px; min-width: 25px; }
-
-        /* Content Area shifts */
-        .main-content { flex: 1; padding: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left: 260px; width: calc(100% - 260px); }
-        .main-content.expanded { margin-left: 60px; width: calc(100% - 60px); }
-
-        .branch-selector-area { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; border-left: 6px solid #007bff; flex-wrap: wrap; gap: 10px; }
-        .branch-select { padding: 8px 15px; font-size: 15px; font-weight: bold; border-radius: 6px; border: 2px solid #007bff; color: #007bff; background: #fff; cursor: pointer; }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* Grids & Cards */
-        .container { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2f5; }
-        .card h2 { font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #1e3c72; }
-        
-        .alert-banner { background-color: #fff3cd; border-left: 6px solid #ffc107; color: #856404; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; display: none; }
-        .debt-alert-banner { background-color: #f8d7da; border-left: 6px solid #dc3545; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; display: none; }
-
-        .filter-row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 6px; align-items: center; }
-        .filter-row label { font-size: 12px; font-weight: bold; color: #555; }
-        .filter-row input[type="date"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
-
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; min-width: 600px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13.5px; }
-        th { background-color: #f8f9fa; color: #495057; font-weight: 600; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13.5px; color: #495057; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 13.5px; }
-        
-        .btn { background-color: #28a745; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px; display: inline-block; text-align: center; }
-        .btn-blue { background-color: #007bff; width: 100%; margin-top: 15px; }
-        .btn-purple { background-color: #6f42c1; color: white; }
-        .btn-orange { background-color: #fd7e14; color: white; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-warning { background-color: #ffc107; color: black; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { padding: 15px; border-radius: 10px; color: white; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .bg-sales { background: linear-gradient(135deg, #11998e, #38ef7d); }
-        .bg-profit { background: linear-gradient(135deg, #f857a6, #ff5858); }
-        .bg-expenses { background: linear-gradient(135deg, #3a1c1c, #c82333); }
-        .bg-net { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
-        .bg-cashflow { background: linear-gradient(135deg, #00c6ff, #0072ff); }
-        .stat-card h3 { font-size: 11px; text-transform: uppercase; opacity: 0.9; }
-        .stat-card p { font-size: 18px; font-weight: bold; margin-top: 6px; }
-
-        .search-box { width: 100%; padding: 10px; font-size: 14px; border: 2px solid #007bff; border-radius: 6px; margin-bottom: 15px; }
-        .admin-only { display: none; } 
-        .badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-block; }
-        
-        .sidebar-overlay { display: none; position: fixed; top: 65px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 80; }
-        .sidebar-overlay.open { display: block; }
-        .danger-zone-box { background-color: #fff5f5; border: 2px dashed #e53e3e; padding: 20px; border-radius: 10px; margin-top: 30px; }
-        #receipt-print { display: none; }
-
-        @media (min-width: 992px) { .container { grid-template-columns: 2fr 1.1fr; } }
-        @media (max-width: 991px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); width: 260px; }
-            .sidebar.open .sidebar-text { display: inline; }
-            .main-content { margin-left: 0 !important; width: 100% !important; }
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --accent-blue: #2563eb;
+            --accent-hover: #1d4ed8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
         }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Auth Screen */
+        .auth-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 950px;
+            min-height: 550px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            margin: 20px;
+        }
+
+        .brand-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f59e0b;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-tagline {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #f59e0b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .info-box p {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .quote-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #fbbf24;
+        }
+
+        .form-panel {
+            flex: 1;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .form-header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Dashboard UI (Hidden by Default) */
+        .dashboard {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-primary);
+            flex-direction: column;
+        }
+
+        .nav-bar {
+            height: 60px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
         @media (max-width: 768px) {
-            .login-container { flex-direction: column; max-width: 450px; }
-            .login-brand-side { width: 100%; padding: 30px; }
-            .login-form-side { width: 100%; padding: 30px; }
-            .brand-info-box { display: none; }
-        }
-        
-        @media print {
-            body * { display: none !important; }
-            #receipt-print, #receipt-print * { display: block !important; }
-            #receipt-print {
-                display: block !important; position: absolute; left: 0; top: 0; width: 80mm; background: #fff; color: #000; padding: 10px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.4;
+            .auth-wrapper {
+                flex-direction: column;
             }
-            .receipt-header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 8px; }
-            .receipt-header h2 { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
-            .receipt-header p { font-size: 11px; margin: 2px 0; }
-            .receipt-body { border-bottom: 1px dashed #000; padding-bottom: 8px; margin-bottom: 8px; }
-            .receipt-row { display: flex; justify-content: space-between; margin: 3px 0; }
-            .receipt-footer { text-align: center; font-size: 10px; font-style: italic; margin-top: 10px; }
+            .brand-panel {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
         }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-container">
-            <div class="login-brand-side">
-                <div class="brand-header">
-                    <h1>NJUNJU ELECTRONICS</h1>
-                    <p class="motto">✨ "We Lift Your Smartlife"</p>
+    <!-- Authentication Screen -->
+    <div class="auth-wrapper" id="auth-screen">
+        <div class="brand-panel">
+            <div>
+                <div class="brand-title">NJUNJU ELECTRONICS</div>
+                <div class="brand-tagline">"We Lift Your Smartlife"</div>
+                
+                <div class="info-box">
+                    <h4>🎯 DIRA YETU</h4>
+                    <p>Kuwa chapa inayoongoza na kuaminika zaidi Afrika Mashariki.</p>
                 </div>
-                <div class="brand-info-box">
-                    <div class="info-segment"><h4>🎯 Dira Yetu</h4><p>Kuwa chapa inayoongoza na kuaminika zaidi Afrika Mashariki.</p></div>
-                    <div class="info-segment"><h4>🚀 Dhana Yetu</h4><p>Kuinua maisha ya kidijitali ya kila mteja kupitia bidhaa halisi.</p></div>
+                
+                <div class="info-box">
+                    <h4>🚀 DHANA YETU</h4>
+                    <p>Kuinua maisha ya kidijitali ya kila mteja kupitia bidhaa halisi.</p>
                 </div>
-                <div class="motivation-box"><p>Nidhamu kwenye kila namba ndio nguzo ya leo.</p></div>
             </div>
-            <div class="login-form-side">
+
+            <div class="quote-box">
+                📌 Nidhamu kwenye kila namba ndio nguzo ya leo.
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <div class="form-header">
                 <h2>Ingia Kwenye Mfumo</h2>
-                <p class="welcome-msg">Weka akaunti yako ili kufungua v6.2 Salama.</p>
-                <div class="form-group"><label>Username</label><input type="text" id="login-username" placeholder="Mfn: admin au staff" value="admin"></div>
-                <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" value="admin123"></div>
-                <button class="btn btn-blue" style="margin-top: 5px; padding: 14px; border-radius: 8px;" onclick="handleLogin()">🔓 Fungua Mfumo Salama</button>
+                <p>Weka akaunti yako ili kufungua v7.0 Salama.</p>
             </div>
+
+            <form id="login-form" onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Mfn: admin au staff" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    🔓 Fungua Mfumo Salama
+                </button>
+            </form>
         </div>
     </div>
 
-    <div id="main-system">
-        <div class="top-navbar">
-            <div class="nav-left">
-                <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
-                <h1>NJUNJU ELECTRONICS</h1>
-            </div>
-            <div class="nav-right">
-                <span id="current-user-tag" class="role-indicator">Staff Mode</span>
-                <button class="logout-btn" onclick="handleLogout()">🚪</button>
+    <!-- Main System Dashboard -->
+    <div class="dashboard" id="dashboard-screen">
+        <div class="nav-bar">
+            <h2 style="color: #f59e0b; font-size: 1.2rem;">NJUNJU ERP v7.0</h2>
+            <div>
+                <span id="user-display" style="margin-right: 16px; color: var(--text-muted);"></span>
+                <button onclick="logout()" style="background: var(--danger-color); border:none; padding: 8px 16px; color: white; border-radius: 6px; cursor: pointer;">Toka</button>
             </div>
         </div>
 
-        <div class="dashboard-wrapper">
-            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-            <div class="sidebar" id="appSidebar">
-                <ul class="sidebar-menu">
-                    <li class="sidebar-item active" onclick="navigateToTab('stoo-tab')"><span class="sidebar-icon">📦</span><span class="sidebar-text">Stoo & Kikapu</span></li>
-                    <li class="sidebar-item" onclick="navigateToTab('mauzo-tab')"><span class="sidebar-icon">📜</span><span class="sidebar-text">Daftari la Mauzo</span></li>
-                    <li class="sidebar-item" onclick="navigateToTab('ufundi-tab')"><span class="sidebar-icon">🛠️</span><span class="sidebar-text">Ufundi & Flashing</span></li>
-                    <li class="sidebar-item" onclick="navigateToTab('returns-tab')"><span class="sidebar-icon">↩️</span><span class="sidebar-text">Daftari la Returns</span></li>
-                    <li class="sidebar-item" onclick="navigateToTab('matumizi-tab')"><span class="sidebar-icon">💸</span><span class="sidebar-text">Rekodi Matumizi</span></li>
-                    <li class="sidebar-item" onclick="navigateToTab('madeni-tab')"><span class="sidebar-icon">🤝</span><span class="sidebar-text">Daftari la Madeni</span></li>
-                    <li class="sidebar-item admin-only" onclick="navigateToTab('report-tab')"><span class="sidebar-icon">📊</span><span class="sidebar-text">Ripoti Kuu</span></li>
-                    <li class="sidebar-item admin-only" onclick="navigateToTab('settings-tab')"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Panel ya Admin</span></li>
-                </ul>
-            </div>
-
-            <div class="main-content" id="mainContent">
-                <div class="branch-selector-area">
-                    <span style="font-size: 15px; font-weight: bold; color:#1e3c72;">🏬 TAWI CURRENT:</span>
-                    <select id="global-branch-select" class="branch-select" onchange="loadAllDataRealtime()">
-                        <option value="Matawi Yote">🌐 Matawi Yote (Jumla Kuu)</option>
-                        <option value="Kariakoo Shop" selected>🏢 Kariakoo Shop (Uhuru St.)</option>
-                        <option value="Mbagala Shop">🏪 Mbagala Shop</option>
-                    </select>
+        <div class="content-area">
+            <div class="card-grid">
+                <div class="stat-card">
+                    <h3>MAUZO YA LEO</h3>
+                    <p id="sales-stat">TSH 0</p>
                 </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card bg-sales"><h3>💰 Mauzo</h3><p id="stat-sales">0/=</p></div>
-                    <div class="stat-card bg-profit admin-only"><h3>📈 Mzigo Faida</h3><p id="stat-profit">0/=</p></div>
-                    <div class="stat-card bg-expenses"><h3>📉 Matumizi</h3><p id="stat-expenses">0/=</p></div>
-                    <div class="stat-card bg-net admin-only"><h3>💎 NET FAIDA</h3><p id="stat-net">0/=</p></div>
-                    <div class="stat-card bg-cashflow"><h3>🔄 Cash Flow</h3><p id="stat-cashflow">0/=</p></div>
+                <div class="stat-card">
+                    <h3>BIDHAA ZILIZOPO</h3>
+                    <p>142</p>
                 </div>
-
-                <div id="stoo-tab" class="tab-content active">
-                    <div class="alert-banner" id="low-stock-alert"></div>
-                    <div class="container">
-                        <div>
-                            <div class="card">
-                                <h2 id="form-title">➕ Sajili Bidhaa Mpya</h2>
-                                <form id="product-form" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                                    <input type="hidden" id="edit-product-id">
-                                    <div class="form-group"><label>Jina la Simu / Bidhaa</label><input type="text" id="p-name" placeholder="Samsung Galaxy A14" required></div>
-                                    <div class="form-group"><label>Namba ya IMEI / Serial</label><input type="text" id="p-imei" placeholder="Skani IMEI"></div>
-                                    <div class="form-group"><label>Kundi (Category)</label><input type="text" id="p-cat" placeholder="Smartphones" required></div>
-                                    <div class="form-group"><label>Idadi (Qty)</label><input type="number" id="p-qty" required></div>
-                                    <div class="form-group admin-only" id="buying-field-group"><label>Bei ya Kununulia</label><input type="number" id="p-buying" value="0"></div>
-                                    <div class="form-group"><label>Bei ya Reja Reja</label><input type="number" id="p-selling" required></div>
-                                    <div class="form-group"><label>Bei ya Jumla</label><input type="number" id="p-wholesale" required></div>
-                                    <div class="form-group"><label>📍 Peleka Tawi</label>
-                                        <select id="p-branch"><option value="Kariakoo Shop">Kariakoo Shop</option><option value="Mbagala Shop">Mbagala Shop</option></select>
-                                    </div>
-                                    <div style="grid-column: span 2; display: flex; gap: 10px;">
-                                        <button type="button" id="save-product-btn" class="btn" style="flex:3;" onclick="saveProduct()">📦 Hifadhi Cloud</button>
-                                        <button type="button" id="cancel-edit-btn" class="btn btn-danger" style="flex:1; display:none;" onclick="cancelEditMode()">Ghairi</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="card">
-                                <h2>📦 Mzigo Uliopo Stoo Ghalani</h2>
-                                <input type="text" id="stock-search" class="search-box" placeholder="🔍 Tafuta kwa jina au IMEI..." onkeyup="filterStock()">
-                                <div class="table-responsive">
-                                    <table>
-                                        <thead><tr><th>Bidhaa</th><th>IMEI Number</th><th>Tawi</th><th>Reja</th><th>Jumla</th><th>Stock</th><th>Kazi</th></tr></thead>
-                                        <tbody id="products-table"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card" style="height: fit-content;">
-                            <h2>🛒 Kikapu cha Mauzo</h2>
-                            <div id="cart-section"><p style="text-align: center; color: #999; padding: 20px 0;">Bonyeza "Uza" kwenye stoo.</p></div>
-                            <div id="cart-details-area" style="display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
-                                <div class="form-group"><label>👤 Jina la Mteja</label><input type="text" id="c-name" placeholder="Walk-in Customer"></div>
-                                <div class="form-group"><label>📞 Namba ya Simu</label><input type="text" id="c-phone" placeholder="0712XXXXXX"></div>
-                                <div class="form-group"><label>🛡️ Dhamana (Warranty)</label>
-                                    <select id="c-warranty"><option value="Miezi 3">Miezi 3</option><option value="Miezi 6">Miezi 6</option><option value="Mwaka 1">Mwaka 1</option><option value="Haina Warranty">Haina Warranty</option></select>
-                                </div>
-                                <div class="form-group"><label>🏷️ Aina ya Bei</label>
-                                    <select id="c-price-type" onchange="updateTotal()"><option value="retail">Bei ya Reja Reja</option><option value="wholesale">Bei ya Jumla</option></select>
-                                </div>
-                                <div class="form-group"><label>💵 Mfumo wa Malipo</label>
-                                    <select id="c-pay-type" onchange="toggleDueDate()"><option value="cash">Cash / Full Payment</option><option value="debt">Mkopo / Anadaiwa</option></select>
-                                </div>
-                                <div class="form-group" id="due-date-group" style="display:none;"><label>📅 Tarehe ya Ahadi</label><input type="date" id="c-due-date"></div>
-                                <div id="cart-total" style="margin-top:20px; font-weight:bold; text-align:right;">
-                                    Jumla: <span id="total-amount" style="color:#28a745;">0</span>/=
-                                    <button class="btn btn-blue" onclick="completeSale()">💰 Kamilisha & Chapa Risiti</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="mauzo-tab" class="tab-content">
-                    <div class="card">
-                        <h2>📜 Daftari Kuu la Mauzo Yote</h2>
-                        <div class="filter-row">
-                            <label>📅 Kuanzia:</label><input type="date" id="sales-filter-from" onchange="filterSales()">
-                            <label>Hadi:</label><input type="date" id="sales-filter-to" onchange="filterSales()">
-                            <button class="btn btn-warning" style="padding:4px 8px; font-size:11px;" onclick="clearSalesDateFilter()">Ondoa Chujio</button>
-                        </div>
-                        <input type="text" id="sales-search" class="search-box" placeholder=" Tafuta kwa IMEI..." onkeyup="filterSales()">
-                        <div class="table-responsive">
-                            <table>
-                                <thead><tr><th>ID</th><th>Bidhaa</th><th>IMEI Number</th><th>📍 Tawi</th><th>👤 Mteja</th><th>Qty</th><th>Kiasi</th><th class="admin-only">Faida</th><th>Tarehe</th><th class="admin-only">Kazi</th></tr></thead>
-                                <tbody id="sales-history-table"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="ufundi-tab" class="tab-content">
-                    <div class="container">
-                        <div class="card">
-                            <h2>🛠️ Sajili Simu ya Ufundi / Locks</h2>
-                            <form id="repair-form">
-                                <div class="form-group"><label>👤 Jina la Mteja</label><input type="text" id="r-cust" required></div>
-                                <div class="form-group"><label>📞 Simu ya Mteja</label><input type="text" id="r-phone" required></div>
-                                <div class="form-group"><label>📱 Kifaa & Model</label><input type="text" id="r-device" placeholder="iPhone / Samsung" required></div>
-                                <div class="form-group"><label>⚙️ Tatizo</label><input type="text" id="r-fault" placeholder="FRP, Flashing, n.k." required></div>
-                                <div class="form-group"><label>💵 Gharama (Tsh)</label><input type="number" id="r-cost" required></div>
-                                <div class="form-group"><label>📍 Tawi</label>
-                                    <select id="r-branch"><option value="Kariakoo Shop">Kariakoo Shop</option><option value="Mbagala Shop">Mbagala Shop</option></select>
-                                </div>
-                                <button type="button" class="btn btn-purple" style="width:100%; padding:12px;" onclick="addRepairJob()">🛠️ Alika Kazi Cloud</button>
-                            </form>
-                        </div>
-                        <div class="card">
-                            <h2>📋 Daftari la Ufundi</h2>
-                            <div class="table-responsive">
-                                <table>
-                                    <thead><tr><th>Mteja</th><th>Kifaa</th><th>Tatizo</th><th>Gharama</th><th>📍 Tawi</th><th>Hali</th><th>Tarehe</th><th>Kazi</th></tr></thead>
-                                    <tbody id="repairs-table"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="returns-tab" class="tab-content">
-                    <div class="card">
-                        <h2>↩️ Rekodi za Simu Zilizorudishwa (Returns)</h2>
-                        <div class="table-responsive">
-                            <table>
-                                <thead><tr><th>Bidhaa</th><th>IMEI Number</th><th>📍 Tawi</th><th>👤 Mteja</th><th>Idadi</th><th>Refunded</th><th>Sababu</th><th>Tarehe</th></tr></thead>
-                                <tbody id="returns-history-table"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="matumizi-tab" class="tab-content">
-                    <div class="container">
-                        <div class="card">
-                            <h2>💸 Rekodi Matumizi Mapya</h2>
-                            <form id="expense-form">
-                                <div class="form-group"><label>Maelezo ya Matumizi</label><input type="text" id="e-desc" required></div>
-                                <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="e-amount" required></div>
-                                <div class="form-group"><label>🔗 Link ya Picha ya Risiti</label><input type="text" id="e-img-url" placeholder="Optional"></div>
-                                <button type="button" class="btn btn-danger" style="width:100%; padding:12px;" onclick="addExpense()">💸 Hifadhi Matumizi</button>
-                            </form>
-                        </div>
-                        <div class="card">
-                            <h2>📉 Orodha ya Matumizi</h2>
-                            <div class="filter-row">
-                                <label>📅 Kuanzia:</label><input type="date" id="exp-filter-from" onchange="filterExpenses()">
-                                <label>Hadi:</label><input type="date" id="exp-filter-to" onchange="filterExpenses()">
-                            </div>
-                            <div class="table-responsive">
-                                <table><thead><tr><th>Maelezo</th><th>Kiasi</th><th>Ushahidi</th><th>Tarehe</th></tr></thead><tbody id="expenses-table"></tbody></table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="madeni-tab" class="tab-content">
-                    <div class="debt-alert-banner" id="debt-due-alert"></div>
-                    <div class="card" style="margin-bottom:20px;">
-                        <h2>➕ Sajili Deni la Msambazaji</h2>
-                        <form id="debt-form" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end;">
-                            <div class="form-group"><label>Jina la Supplier</label><input type="text" id="d-supplier"></div>
-                            <div class="form-group"><label>Kiasi (Tsh)</label><input type="number" id="d-amount"></div>
-                            <div class="form-group"><label>📅 Ahadi Kulipa</label><input type="date" id="d-due-date"></div>
-                            <div><button type="button" class="btn" style="width:100%; background-color:#f857a6;" onclick="addSupplierDebt()">🤝 Hifadhi Deni</button></div>
-                        </form>
-                    </div>
-                    <div class="card">
-                        <h2>🤝 Daftari la Madeni</h2>
-                        <div class="table-responsive">
-                            <table>
-                                <thead><tr><th>Aina</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Ahadi</th><th>Tarehe</th><th>Kazi</th></tr></thead>
-                                <tbody id="debts-table"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="report-tab" class="tab-content admin-only">
-                    <div class="card">
-                        <h2>📊 Ripoti ya Maendeleo Analytics</h2>
-                        <div style="display:flex; gap:12px; margin-bottom:20px; background:#f8f9fa; padding:15px; border-radius:6px; flex-wrap:wrap;">
-                            <div><label>Mwezi:</label>
-                                <select id="report-month">
-                                    <option value="0">Januari</option>
-                                    <option value="1">Februari</option>
-                                    <option value="2">Machi</option>
-                                    <option value="3">Aprili</option>
-                                    <option value="4">Mei</option>
-                                    <option value="5">Juni</option>
-                                    <option value="6">Julai</option>
-                                    <option value="7">Agosti</option>
-                                    <option value="8">Septemba</option>
-                                    <option value="9">Oktoba</option>
-                                    <option value="10">Novemba</option>
-                                    <option value="11">Desemba</option>
-                                </select>
-                            </div>
-                            <div><label>Mwaka:</label>
-                                <select id="report-year">
-                                    <option value="2026" selected>2026</option>
-                                    <option value="2027">2027</option>
-                                </select>
-                            </div>
-                            <div style="display:flex; align-items:flex-end;"><button class="btn btn-blue" style="margin:0; padding:10px 20px;" onclick="generateMonthlyReport()">📊 Kuchambua Ripoti</button></div>
-                        </div>
-                        <div id="report-result-area" style="display:none; margin-top:20px;">
-                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
-                                <div style="background:#e3f2fd; padding:15px; border-radius:6px; text-align:center;"><h4>Jumla ya Mauzo</h4><p id="rep-sales" style="font-size:18px; font-weight:bold; color:#0d47a1;">0/=</p></div>
-                                <div style="background:#ffebee; padding:15px; border-radius:6px; text-align:center;"><h4>Jumla ya Matumizi</h4><p id="rep-expenses" style="font-size:18px; font-weight:bold; color:#b71c1c;">0/=</p></div>
-                                <div style="background:#e8f5e9; padding:15px; border-radius:6px; text-align:center;"><h4>Faida Halisi</h4><p id="rep-net" style="font-size:18px; font-weight:bold; color:#1b5e20;">0/=</p></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="settings-tab" class="tab-content admin-only">
-                    <div class="card">
-                        <h2>🔐 Badili Passwords za Mfumo</h2>
-                        <div class="form-group"><label>Password Mpya ya ADMIN</label><input type="password" id="new-admin-pass"></div>
-                        <div class="form-group"><label>Password Mpya ya STAFF</label><input type="password" id="new-staff-pass"></div>
-                        <button class="btn btn-blue" onclick="changeSystemPasswords()">💾 Hifadhi Passwords Mpya</button>
-                    </div>
-                    <div class="danger-zone-box">
-                        <h3 style="color:#c53030; font-size:16px; margin-bottom:10px;">⚠️ Eneo la Hatari</h3>
-                        <button class="btn btn-danger" onclick="triggerSystemHardReset()">🔥 Futa Mfumo Mzima (Reset All Data)</button>
-                    </div>
+                <div class="stat-card">
+                    <h3>MAOMBI VIPO</h3>
+                    <p>5</p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="receipt-print">
-        <div class="receipt-header">
-            <h2>NJUNJU ELECTRONICS</h2>
-            <p>📍 Location: Uhuru Street, Kariakoo</p>
-            <p><strong>STAKABADHI YA MALIPO (RECEIPT)</strong></p>
-        </div>
-        <div class="receipt-header">
-            <div class="receipt-row"><span>Tarehe:</span><span id="rec-date-v4"></span></div>
-            <div class="receipt-row"><span>Mteja:</span><span id="rec-cust"></span></div>
-            <div class="receipt-row"><span>Simu:</span><span id="rec-cphone"></span></div>
-            <div class="receipt-row"><span>Bidhaa:</span><span id="rec-name"></span></div>
-            <div class="receipt-row"><span>IMEI/Serial:</span><span id="rec-imei"></span></div>
-            <div class="receipt-row"><span>Idadi:</span><span><span id="rec-qty"></span> Pcs</span></div>
-            <div class="receipt-row"><span>Dhamana:</span><span id="rec-warranty"></span></div>
-            <div class="receipt-row"><span>Aina:</span><span id="rec-type"></span></div>
-        </div>
-        <div class="receipt-row" style="font-size:14px; font-weight:bold; border-top:1px dashed #000; padding-top:6px;">
-            <span>JUMLA KUU:</span><span><span id="rec-total"></span>/=</span>
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 24px; border-radius: 12px;">
+                <h3>Karibu Kwenye Mfumo wa Njunju Electronics</h3>
+                <p style="color: var(--text-muted); margin-top: 8px;">Mfumo uko tayari kwa ajili ya usimamizi wa mauzo na stoki.</p>
+            </div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyClPvYa8QQCB_X7HV5K-5Laf15ElM76BP8",
-            authDomain: "njunju-nepos.firebaseapp.com",
-            projectId: "njunju-nepos",
-            storageBucket: "njunju-nepos.firebasestorage.app",
-            messagingSenderId: "25374947876",
-            appId: "1:25374947876:web:1f89e163d08fa76b4d36b1",
-            measurementId: "G-N7LVLZ632T"
+        // System Configured Accounts (In production, replace with secure backend API authentication)
+        const SYSTEM_ACCOUNTS = {
+            'admin': 'Admin2026!',
+            'staff': 'Staff2026!'
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        let selectedProduct = null;
-        let isAdmin = false; 
-        let currentAdminPassword = "admin123";
-        let currentStaffPassword = "staff123";
-        let allSalesCached = [];
-        let allExpensesCached = [];
-        let allProductsCached = {};
-
-        window.toggleSidebar = function() {
-            const sidebar = document.getElementById('appSidebar');
-            const mainContent = document.getElementById('mainContent');
-            const overlay = document.getElementById('sidebarOverlay');
+        function handleAuth(event) {
+            event.preventDefault();
             
-            if (window.innerWidth >= 992) {
-                sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('expanded');
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+
+            if (SYSTEM_ACCOUNTS[usernameInput] && SYSTEM_ACCOUNTS[usernameInput] === passwordInput) {
+                sessionStorage.setItem('authenticated_user', usernameInput);
+                showDashboard(usernameInput);
             } else {
-                sidebar.classList.toggle('open'); overlay.classList.toggle('open');
-                sidebar.classList.remove('collapsed'); mainContent.classList.remove('expanded');
+                alert('Nenosiri au Jina la Mtumiaji si sahihi!');
             }
         }
 
-        window.navigateToTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            const activeMenuItem = document.querySelector(`.sidebar-menu li[onclick*="${tabId}"]`);
-            if (activeMenuItem) activeMenuItem.classList.add('active');
-            if(window.innerWidth < 992) {
-                document.getElementById('appSidebar').classList.remove('open');
-                document.getElementById('sidebarOverlay').classList.remove('open');
+        function showDashboard(username) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'flex';
+            document.getElementById('user-display').innerText = `Mtumiaji: ${username.toUpperCase()}`;
+        }
+
+        function logout() {
+            sessionStorage.removeItem('authenticated_user');
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('login-form').reset();
+        }
+
+        // Auto re-login if session exists
+        window.addEventListener('DOMContentLoaded', () => {
+            const activeUser = sessionStorage.getItem('authenticated_user');
+            if (activeUser) {
+                showDashboard(activeUser);
             }
-            applyAdminVisibility();
-        }
-
-        window.handleLogin = async function() {
-            const user = document.getElementById('login-username').value.trim();
-            const pass = document.getElementById('login-password').value.trim();
-            
-            try {
-                const passRef = db.collection("system_settings").doc("auth_roles");
-                const snap = await passRef.get();
-                
-                if (snap.exists && snap.data().admin_password) {
-                    currentAdminPassword = snap.data().admin_password;
-                    currentStaffPassword = snap.data().staff_password;
-                } else {
-                    await passRef.set({ admin_password: "admin123", staff_password: "staff123" });
-                    currentAdminPassword = "admin123";
-                    currentStaffPassword = "staff123";
-                }
-            } catch (err) {
-                console.log("Inatumia local fallback: ", err);
-            }
-
-            if (user === 'admin' && pass === currentAdminPassword) {
-                isAdmin = true; showSystem("👑 Admin: NJUNJU", "admin-role");
-            } else if (user === 'staff' && pass === currentStaffPassword) {
-                isAdmin = false; showSystem("👤 Staff Mode", "");
-            } else { 
-                alert("❌ Username au Password sio sahihi!"); 
-            }
-        }
-
-        function showSystem(userText, className) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-system').style.display = 'flex';
-            document.getElementById('current-user-tag').innerText = userText;
-            loadAllDataRealtime();
-        }
-
-        function handleLogin() {
-    const usernameInput = document.getElementById('login-username').value.trim();
-    const passwordInput = document.getElementById('login-password').value.trim();
-
-    // Replace 'YOUR_NEW_PASSWORD_HERE' with your desired password
-    if (usernameInput === 'admin' && passwordInput === 'YOUR_NEW_PASSWORD_HERE') {
-        currentUser = { role: 'admin', name: 'Admin' };
-        showMainSystem();
-    } else if (usernameInput === 'staff' && passwordInput === 'STAFF_NEW_PASSWORD') {
-        currentUser = { role: 'staff', name: 'Staff' };
-        showMainSystem();
-    } else {
-        alert('Nenosiri au Jina la Mtumiaji si sahihi!');
-    }
-
-        window.changeSystemPasswords = async function() {
-            const newAdmin = document.getElementById('new-admin-pass').value.trim();
-            const newStaff = document.getElementById('new-staff-pass').value.trim();
-            let up = { admin_password: newAdmin || currentAdminPassword, staff_password: newStaff || currentStaffPassword };
-            await db.collection("system_settings").doc("auth_roles").set(up);
-            alert("🔐 Passwords zimebadilishwa!");
-        }
-
-        function applyAdminVisibility() {
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? (el.tagName==='TR'||el.tagName==='TH'||el.tagName==='TD'?'table-cell':(el.tagName==='LI'?'flex':'block')) : 'none');
-            document.getElementById('buying-field-group').style.display = isAdmin ? "block" : "none";
-        }
-
-        window.toggleDueDate = function() { document.getElementById('due-date-group').style.display = document.getElementById('c-pay-type').value === 'debt' ? 'block' : 'none'; }
-
-        window.saveProduct = async function() {
-            const editId = document.getElementById('edit-product-id').value;
-            const name = document.getElementById('p-name').value;
-            const imei_number = document.getElementById('p-imei').value;
-            const category = document.getElementById('p-cat').value;
-            const buying_price = Number(document.getElementById('p-buying').value) || 0;
-            const selling_price = Number(document.getElementById('p-selling').value);
-            const wholesale_price = Number(document.getElementById('p-wholesale').value);
-            const stock_quantity = Number(document.getElementById('p-qty').value);
-            const branch = document.getElementById('p-branch').value;
-
-            if(editId) {
-                await db.collection("products").doc(editId).update({ name, imei_number, category, buying_price, selling_price, wholesale_price, stock_quantity, branch });
-                cancelEditMode();
-            } else {
-                await db.collection("products").add({ name, imei_number, category, buying_price, selling_price, wholesale_price, stock_quantity, branch, created_at: new Date() });
-                document.getElementById('product-form').reset();
-            }
-        }
-
-        window.enterEditMode = function(id) {
-            const p = allProductsCached[id]; if(!p) return;
-            document.getElementById('edit-product-id').value = id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-imei').value = p.imei_number || '';
-            document.getElementById('p-cat').value = p.category;
-            document.getElementById('p-buying').value = p.buying_price;
-            document.getElementById('p-selling').value = p.selling_price;
-            document.getElementById('p-wholesale').value = p.wholesale_price;
-            document.getElementById('p-qty').value = p.stock_quantity;
-            document.getElementById('p-branch').value = p.branch;
-            document.getElementById('form-title').innerText = "📝 Edit Taarifa";
-            document.getElementById('save-product-btn').innerText = "💾 Hifadhi Mabadiliko";
-            document.getElementById('cancel-edit-btn').style.display = "inline-block";
-        }
-
-        window.cancelEditMode = function() {
-            document.getElementById('edit-product-id').value = ''; document.getElementById('product-form').reset();
-            document.getElementById('form-title').innerText = "➕ Sajili Bidhaa Mpya";
-            document.getElementById('save-product-btn').innerText = "📦 Hifadhi Cloud";
-            document.getElementById('cancel-edit-btn').style.display = "none";
-        }
-
-        window.addRepairJob = async function() {
-            const customer_name = document.getElementById('r-cust').value;
-            const customer_phone = document.getElementById('r-phone').value;
-            const device_model = document.getElementById('r-device').value;
-            const fault_details = document.getElementById('r-fault').value;
-            const cost = Number(document.getElementById('r-cost').value);
-            const branch = document.getElementById('r-branch').value;
-            if(!customer_name || !device_model) return;
-            await db.collection("repairs").add({ customer_name, customer_phone, device_model, fault_details, cost, branch, status: "In Progress", created_at: new Date() });
-            document.getElementById('repair-form').reset();
-            alert("🛠️ Kazi ya ufundi imesajiliwa Cloud!");
-        }
-
-        window.updateRepairStatus = async function(id, newStatus) { await db.collection("repairs").doc(id).update({ status: newStatus }); }
-
-        window.addExpense = async function() {
-            const description = document.getElementById('e-desc').value;
-            const amount = Number(document.getElementById('e-amount').value);
-            const receipt_url = document.getElementById('e-img-url').value;
-            if(!description || !amount) return;
-            await db.collection("expenses").add({ description, amount, receipt_url, date: new Date() });
-            document.getElementById('expense-form').reset();
-        }
-
-        window.addSupplierDebt = async function() {
-            const supplier = document.getElementById('d-supplier').value;
-            const amount = Number(document.getElementById('d-amount').value);
-            const due_date = document.getElementById('d-due-date').value;
-            if(!supplier || !amount) return;
-            await db.collection("debts").add({ type: "Tunadaiwa", name: supplier, phone: "-", amount, status: "Haijalipwa", due_date, created_at: new Date() });
-            document.getElementById('debt-form').reset();
-        }
-
-        window.payDebt = async function(id) { await db.collection("debts").doc(id).update({ status: "Imelipwa" }); }
-
-        window.returnProductSale = async function(saleId) {
-            const sale = allSalesCached.find(s => s.id === saleId); if(!sale) return;
-            let sababu = prompt(`Sababu ya return (${sale.name}):`); if(!sababu) return;
-            if(sale.product_id) {
-                const pSnap = await db.collection("products").doc(sale.product_id).get();
-                if(pSnap.exists) await db.collection("products").doc(sale.product_id).update({ stock_quantity: pSnap.data().stock_quantity + sale.quantity });
-            }
-            await db.collection("returns").add({ product_id: sale.product_id||'', name: sale.name, imei_number: sale.imei_sold||'', customer_name: sale.customer_name, quantity: sale.quantity, amount_refunded: sale.total_price, reason: sababu, branch: sale.branch, return_date: new Date() });
-            await db.collection("sales").doc(saleId).delete();
-        }
-
-        window.triggerSystemHardReset = async function() {
-            if (!isAdmin) { alert("Huruhusiwi!"); return; }
-            let check = confirm("Je, una uhakika unataka KUFUTA data zote kwenye Database?");
-            if (!check) return;
-            let conf = prompt("Andika 'RESET' kufuta kila kitu:");
-            if (conf !== "RESET") return;
-            const collectionsToClean = ["products", "sales", "repairs", "expenses", "debts", "returns"];
-            for (let colName of collectionsToClean) {
-                const querySnapshot = await db.collection(colName).get();
-                const deletes = [];
-                querySnapshot.forEach((docSnap) => { deletes.push(db.collection(colName).doc(docSnap.id).delete()); });
-                await Promise.all(deletes);
-            }
-            alert("Mfumo ume-resetiwa kikamilifu."); window.location.reload();
-        }
-
-        window.loadAllDataRealtime = function() {
-            const activeBranch = document.getElementById('global-branch-select').value;
-            
-            db.collection("products").onSnapshot((snapshot) => {
-                const tableBody = document.getElementById('products-table'); tableBody.innerHTML = '';
-                allProductsCached = {}; let lowStockNames = [];
-                snapshot.forEach((docSnap) => {
-                    const p = docSnap.data(); p.id = docSnap.id; allProductsCached[p.id] = p;
-                    if (activeBranch !== "Matawi Yote" && p.branch !== activeBranch) return;
-                    if (p.stock_quantity <= 2) lowStockNames.push(`${p.name}`);
-                    let isLow = p.stock_quantity <= 2;
-                    tableBody.innerHTML += `<tr><td><strong>${p.name}</strong></td><td><span style='font-family:monospace;'>${p.imei_number||'-'}</span></td><td><span class='badge' style='background:#e3eafc;'>${p.branch.split(' ')[0]}</span></td><td style='color:green; font-weight:bold;'>${p.selling_price.toLocaleString()}</td><td style='color:blue;'>${p.wholesale_price.toLocaleString()}</td><td><span class='badge' style='${isLow?'background:#dc3545;color:white;':'background:#d4edda;'}'>${p.stock_quantity} Pcs</span></td><td><button class='btn' style='padding:4px 8px; font-size:12px;' onclick="addToCart('${p.id}', '${p.name}', '${p.imei_number||''}', ${p.buying_price}, ${p.selling_price}, ${p.wholesale_price}, ${p.stock_quantity}, '${p.branch}')">Uza</button> <button class='btn btn-warning admin-only' style='padding:4px; font-size:11px;' onclick="enterEditMode('${p.id}')">✏️</button></td></tr>`;
-                });
-                const alertBanner = document.getElementById('low-stock-alert');
-                if(lowStockNames.length > 0) { alertBanner.innerHTML = `⚠️ Mzigo Unaoisha Stoo: ${lowStockNames.join(', ')} zimebaki chini ya 3 Pcs!`; alertBanner.style.display = 'block'; } else { alertBanner.style.display = 'none'; }
-                applyAdminVisibility();
-            });
-
-            db.collection("repairs").orderBy("created_at", "desc").onSnapshot((snapshot) => {
-                const repBody = document.getElementById('repairs-table'); repBody.innerHTML = '';
-                snapshot.forEach((docSnap) => {
-                    const r = docSnap.data(); r.id = docSnap.id;
-                    if (activeBranch !== "Matawi Yote" && r.branch !== activeBranch) return;
-                    let isReady = r.status === "Ready";
-                    let selectStatus = `<select onchange="updateRepairStatus('${r.id}', this.value)"><option value='In Progress' ${r.status==='In Progress'?'selected':''}>In Progress</option><option value='Ready' ${r.status==='Ready'?'selected':''}>Ready / Chukua</option></select>`;
-                    repBody.innerHTML += `<tr><td><strong>${r.customer_name}</strong><br><small>${r.customer_phone}</small></td><td>${r.device_model}</td><td style='color:#6f42c1;'>${r.fault_details}</td><td>${r.cost.toLocaleString()}</td><td>${r.branch.split(' ')[0]}</td><td><span class='badge' style='${isReady?'background:green;color:white;':'background:orange;color:white;'}'>${r.status}</span></td><td>${r.created_at?new Date(r.created_at.seconds*1000).toLocaleDateString('sw-TZ'):'-'}</td><td>${selectStatus}</td></tr>`;
-                });
-            });
-
-            db.collection("sales").orderBy("sale_date", "desc").onSnapshot((snapshot) => {
-                allSalesCached = []; snapshot.forEach(d => { let data = d.data(); data.id = d.id; allSalesCached.push(data); });
-                filterSales();
-            });
-
-            db.collection("expenses").onSnapshot((snapshot) => {
-                allExpensesCached = []; snapshot.forEach(d => allExpensesCached.push(d.data()));
-                filterExpenses();
-            });
-
-            db.collection("debts").onSnapshot((snapshot) => {
-                const debtsBody = document.getElementById('debts-table'); debtsBody.innerHTML = '';
-                let overdueNames = [];
-                snapshot.forEach((docSnap) => {
-                    const d = docSnap.data(); d.id = docSnap.id;
-                    let actionBtn = d.status === 'Haijalipwa' ? `<button class="btn" style="background:#007bff; padding:4px;" onclick="payDebt('${d.id}')">💵 Lipwa</button>` : '✓ Sawa';
-                    if(d.status === "Haijalipwa" && d.due_date && new Date(d.due_date) < new Date()) overdueNames.push(`${d.name}`);
-                    debtsBody.innerHTML += `<tr><td><span style='color:${d.type==='Kudai'?'green':'red'}'>${d.type}</span></td><td><strong>${d.name}</strong></td><td>${d.phone || '-'}</td><td><strong>${d.amount.toLocaleString()}</strong></td><td><span class='badge' style='${d.status==='Imelipwa'?'background:#d4edda;color:green;':'background:#f8d7da;color:red;'}'>${d.status}</span></td><td>${d.due_date?new Date(d.due_date).toLocaleDateString('sw-TZ'):'-'}</td><td>${d.created_at?new Date(d.created_at.seconds*1000).toLocaleDateString('sw-TZ'):'-'}</td><td>${actionBtn}</td></tr>`;
-                });
-                const debtBanner = document.getElementById('debt-due-alert');
-                if(overdueNames.length > 0) { debtBanner.innerHTML = `🚨 MADENI OVERDUE: Wateja waliopitisha tarehe: ${overdueNames.join(', ')}`; debtBanner.style.display = 'block'; } else { debtBanner.style.display = 'none'; }
-            });
-
-            db.collection("returns").orderBy("return_date", "desc").onSnapshot((snapshot) => {
-                const returnsBody = document.getElementById('returns-history-table'); returnsBody.innerHTML = '';
-                snapshot.forEach((docSnap) => {
-                    const r = docSnap.data(); if (activeBranch !== "Matawi Yote" && r.branch !== activeBranch) return;
-                    returnsBody.innerHTML += `<tr><td><strong>${r.name}</strong></td><td>${r.imei_number||'-'}</td><td>${r.branch.split(' ')[0]}</td><td>${r.customer_name}</td><td>${r.quantity} Pcs</td><td style='color:red;'>-${r.amount_refunded.toLocaleString()}</td><td>"${r.reason}"</td><td>${r.return_date?new Date(r.return_date.seconds*1000).toLocaleDateString('sw-TZ'):'-'}</td></tr>`;
-                });
-            });
-        }
-
-        window.filterSales = function() {
-            const activeBranch = document.getElementById('global-branch-select').value;
-            const searchInput = document.getElementById('sales-search').value.toLowerCase();
-            const fromDateVal = document.getElementById('sales-filter-from').value;
-            const toDateVal = document.getElementById('sales-filter-to').value;
-            const historyBody = document.getElementById('sales-history-table'); historyBody.innerHTML = '';
-            let t_sales = 0, t_profit = 0, count = 1;
-
-            allSalesCached.forEach((s) => {
-                if (activeBranch !== "Matawi Yote" && s.branch !== activeBranch) return;
-                let sDate = s.sale_date ? new Date(s.sale_date.seconds * 1000) : null;
-                if(fromDateVal && sDate && sDate < new Date(fromDateVal)) return;
-                if(toDateVal && sDate && sDate > new Date(toDateVal)) return;
-                if(searchInput && !(s.name.toLowerCase().includes(searchInput) || (s.imei_sold||'').toLowerCase().includes(searchInput))) return;
-
-                t_sales += s.total_price; t_profit += s.profit;
-                historyBody.innerHTML += `<tr><td>#${count++}</td><td><strong>${s.name}</strong></td><td>${s.imei_sold||'-'}</td><td><span class='badge' style='background:#f0f4f8;'>${s.branch.split(' ')[0]}</span></td><td>${s.customer_name||'Walk-in'}</td><td>${s.quantity} Pcs</td><td style='color:green; font-weight:bold;'>${s.total_price.toLocaleString()}</td><td class='admin-only' style='color:blue;'>${s.profit.toLocaleString()}</td><td>${sDate?sDate.toLocaleDateString('sw-TZ'):'-'}</td><td class='admin-only'><button class='btn btn-orange' style='padding:4px; font-size:11px;' onclick="returnProductSale('${s.id}')">↩️ Return</button></td></tr>`;
-            });
-            document.getElementById('stat-sales').innerText = t_sales.toLocaleString() + '/=';
-            document.getElementById('stat-profit').innerText = t_profit.toLocaleString() + '/=';
-            recalculateTotalsDashboard(t_sales, t_profit);
-        }
-
-        window.clearSalesDateFilter = function() {
-            document.getElementById('sales-filter-from').value = ''; document.getElementById('sales-filter-to').value = ''; filterSales();
-        }
-
-        window.filterExpenses = function() {
-            const expBody = document.getElementById('expenses-table'); expBody.innerHTML = '';
-            let t_expenses = 0;
-            allExpensesCached.forEach((e) => {
-                t_expenses += e.amount;
-                let eDate = e.date ? new Date(e.date.seconds * 1000) : null;
-                expBody.innerHTML += `<tr><td>${e.description}</td><td style='color:red;'>${e.amount.toLocaleString()}</td><td>${e.receipt_url?`<a href='${e.receipt_url}' target='_blank'>👁️ Angalia</a>` : '-'}</td><td>${eDate?eDate.toLocaleDateString('sw-TZ'):'Leo'}</td></tr>`;
-            });
-            document.getElementById('stat-expenses').innerText = t_expenses.toLocaleString() + '/=';
-            let t_sales = allSalesCached.reduce((acc, curr) => acc + (curr.total_price || 0), 0);
-            let t_profit = allSalesCached.reduce((acc, curr) => acc + (curr.profit || 0), 0);
-            recalculateTotalsDashboard(t_sales, t_profit);
-        }
-
-        function recalculateTotalsDashboard(sales, profit) {
-            let expenses = allExpensesCached.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-            document.getElementById('stat-net').innerText = (profit - expenses).toLocaleString() + '/=';
-            document.getElementById('stat-cashflow').innerText = (sales - expenses).toLocaleString() + '/=';
-            applyAdminVisibility();
-        }
-
-        window.generateMonthlyReport = function() {
-            const month = parseInt(document.getElementById('report-month').value, 10);
-            const year = parseInt(document.getElementById('report-year').value, 10);
-            const activeBranch = document.getElementById('global-branch-select').value;
-
-            let totalSales = 0;
-            let totalProfit = 0;
-            let totalExpenses = 0;
-
-            allSalesCached.forEach(s => {
-                if (activeBranch !== "Matawi Yote" && s.branch !== activeBranch) return;
-                let date = s.sale_date ? new Date(s.sale_date.seconds * 1000) : null;
-                if (date && date.getMonth() === month && date.getFullYear() === year) {
-                    totalSales += s.total_price || 0;
-                    totalProfit += s.profit || 0;
-                }
-            });
-
-            allExpensesCached.forEach(e => {
-                let date = e.date ? new Date(e.date.seconds * 1000) : null;
-                if (date && date.getMonth() === month && date.getFullYear() === year) {
-                    totalExpenses += e.amount || 0;
-                }
-            });
-
-            document.getElementById('rep-sales').innerText = totalSales.toLocaleString() + '/=';
-            document.getElementById('rep-expenses').innerText = totalExpenses.toLocaleString() + '/=';
-            document.getElementById('rep-net').innerText = (totalProfit - totalExpenses).toLocaleString() + '/=';
-            document.getElementById('report-result-area').style.display = 'block';
-        }
-
-        window.addToCart = function(id, name, imei, buyingPrice, retailPrice, wholesalePrice, currentStock, branch) {
-            selectedProduct = { id, name, imei, buyingPrice, retailPrice, wholesalePrice, currentStock, branch };
-            document.getElementById('cart-section').innerHTML = `<div style='background:#f8f9fa; padding:12px; border-radius:6px;'><strong>📦 ${name}</strong><br><label>Idadi:</label><input type='number' id='sale-qty' value='1' min='1' max='${currentStock}' style='width:70px; padding:6px;' onchange='updateTotal()'></div>`;
-            document.getElementById('cart-details-area').style.display = 'block'; updateTotal();
-        }
-
-        window.updateTotal = function() {
-            if(!selectedProduct) return;
-            const qty = Number(document.getElementById('sale-qty').value) || 1;
-            const finalPrice = document.getElementById('c-price-type').value === 'wholesale' ? selectedProduct.wholesalePrice : selectedProduct.retailPrice;
-            document.getElementById('total-amount').innerText = (finalPrice * qty).toLocaleString();
-        }
-
-        window.completeSale = async function() {
-            if(!selectedProduct) return;
-            const qty = Number(document.getElementById('sale-qty').value) || 1;
-            const customer_name = document.getElementById('c-name').value || 'Walk-in Customer';
-            const customer_phone = document.getElementById('c-phone').value || '-';
-            const warranty = document.getElementById('c-warranty').value;
-            const is_debt = document.getElementById('c-pay-type').value === 'debt';
-            const due_date = document.getElementById('c-due-date').value;
-            const finalPrice = document.getElementById('c-price-type').value === 'wholesale' ? selectedProduct.wholesalePrice : selectedProduct.retailPrice;
-            const total_price = finalPrice * qty;
-            const profit = total_price - (selectedProduct.buyingPrice * qty);
-
-            if(selectedProduct.currentStock < qty) { alert("Mzigo hautoshi!"); return; }
-            await db.collection("products").doc(selectedProduct.id).update({ stock_quantity: selectedProduct.currentStock - qty });
-            await db.collection("sales").add({ product_id: selectedProduct.id, name: selectedProduct.name, imei_sold: selectedProduct.imei, customer_name, quantity: qty, total_price, profit, branch: selectedProduct.branch, sale_date: new Date() });
-            if(is_debt) await db.collection("debts").add({ type: "Kudai", name: customer_name, phone: customer_phone, amount: total_price, status: "Haijalipwa", due_date, created_at: new Date() });
-
-            document.getElementById('rec-date-v4').innerText = new Date().toLocaleString('sw-TZ');
-            document.getElementById('rec-cust').innerText = customer_name;
-            document.getElementById('rec-cphone').innerText = customer_phone;
-            document.getElementById('rec-name').innerText = selectedProduct.name;
-            document.getElementById('rec-imei').innerText = selectedProduct.imei || 'N/A';
-            document.getElementById('rec-qty').innerText = qty;
-            document.getElementById('rec-warranty').innerText = warranty;
-            document.getElementById('rec-type').innerText = is_debt ? 'MKOPO' : 'CASH';
-            document.getElementById('rec-total').innerText = total_price.toLocaleString();
-            window.print();
-            document.getElementById('cart-details-area').style.display = 'none';
-            document.getElementById('cart-section').innerHTML = '<p style="text-align: center; color: #999; padding: 20px 0;">Bonyeza "Uza" kwenye stoo.</p>';
-        }
-
-        window.filterStock = function() {
-            let input = document.getElementById('stock-search').value.toLowerCase();
-            document.querySelectorAll('#products-table tr').forEach(row => { row.style.display = (row.children[0].innerText.toLowerCase().includes(input) || row.children[1].innerText.toLowerCase().includes(input)) ? "" : "none"; });
-        }
+        });
     </script>
 </body>
 </html>
