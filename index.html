@@ -84,6 +84,8 @@
         
         .btn { background-color: #28a745; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13.5px; display: inline-block; text-align: center; }
         .btn-blue { background-color: #007bff; width: 100%; margin-top: 15px; }
+        .btn-purple { background-color: #6f42c1; color: white; }
+        .btn-orange { background-color: #fd7e14; color: white; }
         .btn-danger { background-color: #dc3545; }
         .btn-warning { background-color: #ffc107; color: black; }
         
@@ -374,8 +376,28 @@
                     <div class="card">
                         <h2>📊 Ripoti ya Maendeleo Analytics</h2>
                         <div style="display:flex; gap:12px; margin-bottom:20px; background:#f8f9fa; padding:15px; border-radius:6px; flex-wrap:wrap;">
-                            <div><label>Mwezi:</label><select id="report-month"><option value="0">Januari</option><option value="1">Februari</option><option value="2">Machi</option><option value="3">Aprili</option><option value="4">Mei</option><option value="5">Juni</option><option value="6">Julai</option><option value="7">Agosti</option><option value="8">Septemba</option><option value="9">Oktoba</option><option value="10">Novemba</option><option value="11">Desemba</option></select></div>
-                            <div><label>Mwaka:</label><select id="report-year"><option value="2026" selected>2026</option><option value="2027">2027</option></select></div>
+                            <div><label>Mwezi:</label>
+                                <select id="report-month">
+                                    <option value="0">Januari</option>
+                                    <option value="1">Februari</option>
+                                    <option value="2">Machi</option>
+                                    <option value="3">Aprili</option>
+                                    <option value="4">Mei</option>
+                                    <option value="5">Juni</option>
+                                    <option value="6">Julai</option>
+                                    <option value="7">Agosti</option>
+                                    <option value="8">Septemba</option>
+                                    <option value="9">Oktoba</option>
+                                    <option value="10">Novemba</option>
+                                    <option value="11">Desemba</option>
+                                </select>
+                            </div>
+                            <div><label>Mwaka:</label>
+                                <select id="report-year">
+                                    <option value="2026" selected>2026</option>
+                                    <option value="2027">2027</option>
+                                </select>
+                            </div>
                             <div style="display:flex; align-items:flex-end;"><button class="btn btn-blue" style="margin:0; padding:10px 20px;" onclick="generateMonthlyReport()">📊 Kuchambua Ripoti</button></div>
                         </div>
                         <div id="report-result-area" style="display:none; margin-top:20px;">
@@ -426,7 +448,6 @@
     </div>
 
     <script>
-        // Mfumo wa Firebase config ya NJUNJU ELECTRONICS
         const firebaseConfig = {
             apiKey: "AIzaSyClPvYa8QQCB_X7HV5K-5Laf15ElM76BP8",
             authDomain: "njunju-nepos.firebaseapp.com",
@@ -437,7 +458,6 @@
             measurementId: "G-N7LVLZ632T"
         };
 
-        // Kuanzisha Firebase kwa mtindo unaoonekana na HTML Global window
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
@@ -475,7 +495,6 @@
             applyAdminVisibility();
         }
 
-        // --- 100% FIXED GLOBAL LOGIN FUNCTION ---
         window.handleLogin = async function() {
             const user = document.getElementById('login-username').value.trim();
             const pass = document.getElementById('login-password').value.trim();
@@ -493,7 +512,7 @@
                     currentStaffPassword = "staff123";
                 }
             } catch (err) {
-                console.log("Inatumia local fallback mkuu: ", err);
+                console.log("Inatumia local fallback: ", err);
             }
 
             if (user === 'admin' && pass === currentAdminPassword) {
@@ -630,7 +649,9 @@
             const collectionsToClean = ["products", "sales", "repairs", "expenses", "debts", "returns"];
             for (let colName of collectionsToClean) {
                 const querySnapshot = await db.collection(colName).get();
-                querySnapshot.forEach(async (docSnap) => { await db.collection(colName).doc(docSnap.id).delete(); });
+                const deletes = [];
+                querySnapshot.forEach((docSnap) => { deletes.push(db.collection(colName).doc(docSnap.id).delete()); });
+                await Promise.all(deletes);
             }
             alert("Mfumo ume-resetiwa kikamilifu."); window.location.reload();
         }
@@ -732,16 +753,47 @@
                 expBody.innerHTML += `<tr><td>${e.description}</td><td style='color:red;'>${e.amount.toLocaleString()}</td><td>${e.receipt_url?`<a href='${e.receipt_url}' target='_blank'>👁️ Angalia</a>` : '-'}</td><td>${eDate?eDate.toLocaleDateString('sw-TZ'):'Leo'}</td></tr>`;
             });
             document.getElementById('stat-expenses').innerText = t_expenses.toLocaleString() + '/=';
-            let t_sales = Number(document.getElementById('stat-sales').innerText.replace(/[^0-9]/g, '')) || 0;
-            let t_profit = Number(document.getElementById('stat-profit').innerText.replace(/[^0-9]/g, '')) || 0;
+            let t_sales = allSalesCached.reduce((acc, curr) => acc + (curr.total_price || 0), 0);
+            let t_profit = allSalesCached.reduce((acc, curr) => acc + (curr.profit || 0), 0);
             recalculateTotalsDashboard(t_sales, t_profit);
         }
 
         function recalculateTotalsDashboard(sales, profit) {
-            let expenses = Number(document.getElementById('stat-expenses').innerText.replace(/[^0-9]/g, '')) || 0;
+            let expenses = allExpensesCached.reduce((acc, curr) => acc + (curr.amount || 0), 0);
             document.getElementById('stat-net').innerText = (profit - expenses).toLocaleString() + '/=';
             document.getElementById('stat-cashflow').innerText = (sales - expenses).toLocaleString() + '/=';
             applyAdminVisibility();
+        }
+
+        window.generateMonthlyReport = function() {
+            const month = parseInt(document.getElementById('report-month').value, 10);
+            const year = parseInt(document.getElementById('report-year').value, 10);
+            const activeBranch = document.getElementById('global-branch-select').value;
+
+            let totalSales = 0;
+            let totalProfit = 0;
+            let totalExpenses = 0;
+
+            allSalesCached.forEach(s => {
+                if (activeBranch !== "Matawi Yote" && s.branch !== activeBranch) return;
+                let date = s.sale_date ? new Date(s.sale_date.seconds * 1000) : null;
+                if (date && date.getMonth() === month && date.getFullYear() === year) {
+                    totalSales += s.total_price || 0;
+                    totalProfit += s.profit || 0;
+                }
+            });
+
+            allExpensesCached.forEach(e => {
+                let date = e.date ? new Date(e.date.seconds * 1000) : null;
+                if (date && date.getMonth() === month && date.getFullYear() === year) {
+                    totalExpenses += e.amount || 0;
+                }
+            });
+
+            document.getElementById('rep-sales').innerText = totalSales.toLocaleString() + '/=';
+            document.getElementById('rep-expenses').innerText = totalExpenses.toLocaleString() + '/=';
+            document.getElementById('rep-net').innerText = (totalProfit - totalExpenses).toLocaleString() + '/=';
+            document.getElementById('report-result-area').style.display = 'block';
         }
 
         window.addToCart = function(id, name, imei, buyingPrice, retailPrice, wholesalePrice, currentStock, branch) {
